@@ -1,13 +1,13 @@
 import { Controller, Get, Post, Body, Param, Req } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { Request } from 'express';
 import {
   ApiTags,
   ApiOperation,
   ApiParam,
   ApiResponse,
 } from '@nestjs/swagger/dist';
+import { IpAddress } from 'src/request-ip/request-ip.decorator';
 
 @Controller('users')
 @ApiTags('/users')
@@ -24,8 +24,11 @@ export class UsersController {
     status: 409,
     description: '口座が既に作成されている',
   })
-  async create(@Body() createUserDto: CreateUserDto, @Req() request: Request) {
-    return await this.usersService.create(createUserDto, request.ip);
+  async create(
+    @Body() createUserDto: CreateUserDto,
+    @IpAddress() ipAddress: string,
+  ) {
+    return await this.usersService.create(createUserDto, ipAddress);
   }
 
   @Get('/get/:id')
