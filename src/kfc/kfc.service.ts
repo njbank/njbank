@@ -16,8 +16,22 @@ export class KfcService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  async depositKfc(depositKfcDto: DepositKfcDto) {
+  async checkKfc(id: string, ipAddress: string) {
+    if (!this.checkIp(id, ipAddress)) {
+      throw new ForbiddenException(`IPチェックに失敗しました。`);
+    }
+    const user = await this.userRepository.findOneBy({ id });
+    if (!user) {
+      throw new ForbiddenException(`${id}は見つかりませんでした。`);
+    }
+    return user.amount;
+  }
+
+  async depositKfc(depositKfcDto: DepositKfcDto, ipAddress: string) {
     const id = depositKfcDto.id;
+    if (!this.checkIp(id, ipAddress)) {
+      throw new ForbiddenException(`IPチェックに失敗しました。`);
+    }
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new ForbiddenException(`${id}は見つかりませんでした。`);
@@ -30,8 +44,11 @@ export class KfcService {
     return user.amount + depositKfcDto.amount;
   }
 
-  async withdrawKfc(withdrawKfcDto: WithdrawKfcDto) {
+  async withdrawKfc(withdrawKfcDto: WithdrawKfcDto, ipAddress: string) {
     const id = withdrawKfcDto.id;
+    if (!this.checkIp(id, ipAddress)) {
+      throw new ForbiddenException(`IPチェックに失敗しました。`);
+    }
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new ForbiddenException(`${id}は見つかりませんでした。`);
@@ -47,16 +64,19 @@ export class KfcService {
     return user.amount - withdrawKfcDto.amount;
   }
 
-  async transferKfc(tranferKfcDto: TransferKfcDto) {
+  async transferKfc(transferKfcDto: TransferKfcDto, ipAddress: string) {
+    const id = transferKfcDto.id;
+    if (!this.checkIp(id, ipAddress)) {
+      throw new ForbiddenException(`IPチェックに失敗しました。`);
+    }
     return `Todo`;
   }
 
-  async checkKfc(Id: string) {
-    const id = Id;
+  async checkIp(id: string, ip: string): Promise<boolean> {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
-      throw new ForbiddenException(`${id}は見つかりませんでした。`);
+      return false;
     }
-    return user.amount;
+    return user.ipAddress === ip;
   }
 }
