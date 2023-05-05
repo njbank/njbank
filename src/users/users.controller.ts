@@ -52,6 +52,20 @@ export class UsersController {
     type: String,
     example: 'U-hinanoaira',
   })
+  @ApiResponse({
+    status: 200,
+    description: '処理が正しく完了した',
+  })
+  async resetIp(@Param('id') id: string) {
+    return await this.usersService.resetIp(id);
+  }
+
+  @Get('entry-code/:id/:code')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    example: 'U-hinanoaira',
+  })
   @ApiParam({
     name: 'code',
     type: String,
@@ -59,13 +73,8 @@ export class UsersController {
   })
   @ApiResponse({
     status: 200,
-    description: 'ユーザーネームを返答',
+    description: '処理が正しく完了した',
   })
-  async resetIp(@Param('id') id: string) {
-    return await this.usersService.resetIp(id);
-  }
-
-  @Get('entry-code/:id/:code')
   async entryCode(
     @Param('id') id: string,
     @Param('code') code: string,

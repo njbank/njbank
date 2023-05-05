@@ -67,6 +67,7 @@ export class UsersService {
       id,
       `以下のコードを入力してください。\nPlease enter this code.\n${code}`,
     );
+    return 'コードを送信しました';
   }
   async entryCode(id: string, code: string, ip: string) {
     const user = await this.userRepository.findOneBy({ id }).catch((e) => {
@@ -87,5 +88,6 @@ export class UsersService {
       id,
       `IP登録情報を更新しました。\nThe registered IP has been updated.`,
     );
+    return 'IP登録情報を更新しました';
   }
 }
