@@ -58,12 +58,16 @@ export class KfcService {
     if (user.amount < withdrawKfcDto.amount) {
       throw new ForbiddenException(`お金が足りません。`);
     }
+    await this.neosService.sendKfc(
+      id,
+      withdrawKfcDto.amount,
+      `出金 - ご利用ありがとうございました。`,
+    );
     await this.userRepository
       .update(id, { amount: user.amount - withdrawKfcDto.amount })
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
-    await this.neosService.sendKfc(withdrawKfcDto.id, withdrawKfcDto.amount);
     return user.amount - withdrawKfcDto.amount;
   }
 
