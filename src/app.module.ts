@@ -8,6 +8,7 @@ import { AuthMiddleware } from './middleware/auth/auth.middleware';
 import { KfcModule } from './kfc/kfc.module';
 import { DatabaseModule } from './database/database.module';
 import { NeosModule } from './neos/neos.modules';
+import { GetToHeaderMiddleware } from './middleware/auth/get-to-header.middleware';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { NeosModule } from './neos/neos.modules';
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
+    consumer.apply(GetToHeaderMiddleware).forRoutes('*');
     consumer.apply(AuthMiddleware).forRoutes('*');
   }
 }
