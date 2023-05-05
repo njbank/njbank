@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Neos } from 'neos-client/dist';
+import 'dotenv/config';
 
 @Injectable()
 export class NeosService {
   private neos = new Neos({
-    username: 'hinasense.js',
-    password: 'Lillywhite56',
+    username: process.env.NEOS_USER,
+    password: process.env.NEOS_PASS,
   });
   constructor() {
     this.neos.on('FriendRequested', (friend) => {
@@ -18,5 +19,16 @@ export class NeosService {
       targetUserId: `U-${id.substring(2)}`,
       message: message,
     });
+  }
+  async sendKfc(id: string, amount: number, comment?: string, totp?: string) {
+    await this.neos.sendKFC({
+      targetUserId: `U-${id.substring(2)}`,
+      amount: amount,
+      comment: comment,
+      totp: totp,
+    });
+  }
+  async friendRequest(id: string) {
+    await this.neos.addFriend({ targetUserId: `U-${id.substring(2)}` });
   }
 }

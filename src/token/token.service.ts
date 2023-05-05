@@ -64,7 +64,9 @@ export class TokenService {
 
   async checkToken(Id: string, name: string, ipAddress: string) {
     const id = Id;
-    const user = await this.userRepository.findOneBy({ id });
+    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
+      throw new InternalServerErrorException(e.message);
+    });
     if (!user) {
       throw new ForbiddenException(`${id}の口座は存在しません。`);
     }
@@ -89,7 +91,9 @@ export class TokenService {
     ipAddress: string,
   ) {
     const id = depositTokenDto.id;
-    const user = await this.userRepository.findOneBy({ id });
+    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
+      throw new InternalServerErrorException(e.message);
+    });
     if (!user) {
       throw new ForbiddenException(`${id}の口座は存在しません。`);
     }
@@ -123,7 +127,9 @@ export class TokenService {
     ipAddress: string,
   ) {
     const id = withdrawTokenDto.id;
-    const user = await this.userRepository.findOneBy({ id });
+    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
+      throw new InternalServerErrorException(e.message);
+    });
     if (!user) {
       throw new ForbiddenException(`${id}の口座は存在しません。`);
     }
@@ -161,7 +167,9 @@ export class TokenService {
 
   async buyToken(buyTokenDto: BuyTokenDto, name: string, ipAddress: string) {
     const id = buyTokenDto.id;
-    const user = await this.userRepository.findOneBy({ id });
+    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
+      throw new InternalServerErrorException(e.message);
+    });
     if (!user) {
       throw new ForbiddenException(`${id}の口座は存在しません。`);
     }
@@ -192,7 +200,9 @@ export class TokenService {
   }
 
   async checkIp(id: string, ip: string): Promise<boolean> {
-    const user = await this.userRepository.findOneBy({ id });
+    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
+      throw new InternalServerErrorException(e.message);
+    });
     if (!user) {
       return false;
     }
