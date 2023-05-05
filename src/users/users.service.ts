@@ -59,7 +59,7 @@ export class UsersService {
     if (!user) {
       throw new ForbiddenException(`${id}の口座はありません。`);
     }
-    const code = ('0000' + Math.floor(Math.random() * 100)).slice(-4);
+    const code = ('0000' + Math.floor(Math.random() * 9999)).slice(-4);
     await this.userRepository.update(id, { oneTimeCode: code }).catch((e) => {
       throw new InternalServerErrorException(e.message);
     });
