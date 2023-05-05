@@ -7,9 +7,17 @@ import { AuthModule } from './auth/auth.module';
 import { AuthMiddleware } from './middleware/auth/auth.middleware';
 import { KfcModule } from './kfc/kfc.module';
 import { DatabaseModule } from './database.modules';
+import { NeosModule } from './neos/neos.modules';
 
 @Module({
-  imports: [UsersModule, TokenModule, AuthModule, KfcModule, DatabaseModule],
+  imports: [
+    UsersModule,
+    TokenModule,
+    AuthModule,
+    KfcModule,
+    DatabaseModule,
+    NeosModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

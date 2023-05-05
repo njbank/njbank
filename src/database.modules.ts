@@ -21,6 +21,7 @@ import { Token } from './token/entities/token.entity';
         },
         entities: [User, Token],
         synchronize: false,
+        migrations: ['src/migration/*.ts'],
       }),
     }),
   ],
