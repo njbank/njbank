@@ -9,7 +9,7 @@ import {
 import { DepositKfcDto } from './dto/deposit-kfc.dto';
 import { WithdrawKfcDto } from './dto/withdraw-kfc.dto';
 import { TransferKfcDto } from './dto/transfer-kfc.dto';
-import { IpAddress } from 'src/request-ip/request-ip.decorator';
+import { RealIP } from 'nestjs-real-ip';
 
 @Controller('kfc')
 @ApiTags('/kfc')
@@ -27,7 +27,7 @@ export class KfcController {
     status: 200,
     description: '所持金を返答',
   })
-  async check(@Param('id') id: string, @IpAddress() ipAddress: string) {
+  async check(@Param('id') id: string, @RealIP() ipAddress: string) {
     return await this.kfcService.checkKfc(id, ipAddress);
   }
 
@@ -39,7 +39,7 @@ export class KfcController {
   })
   async deposit(
     @Body() depositKefDto: DepositKfcDto,
-    @IpAddress() ipAddress: string,
+    @RealIP() ipAddress: string,
   ) {
     return await this.kfcService.depositKfc(depositKefDto, ipAddress);
   }
@@ -52,7 +52,7 @@ export class KfcController {
   })
   async withdraw(
     @Body() withdrawKfcDto: WithdrawKfcDto,
-    @IpAddress() ipAddress: string,
+    @RealIP() ipAddress: string,
   ) {
     return await this.kfcService.withdrawKfc(withdrawKfcDto, ipAddress);
   }
@@ -65,7 +65,7 @@ export class KfcController {
   })
   async transfer(
     @Body() transferKfcDto: TransferKfcDto,
-    @IpAddress() ipAddress: string,
+    @RealIP() ipAddress: string,
   ) {
     return await this.kfcService.transferKfc(transferKfcDto, ipAddress);
   }

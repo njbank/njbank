@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import requestIp from 'request-ip';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,7 +14,6 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   const port = process.env.PORT || 3000;
-  app.use(requestIp.mw());
   await app.listen(port);
 }
 bootstrap();

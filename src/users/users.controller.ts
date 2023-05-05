@@ -7,7 +7,7 @@ import {
   ApiParam,
   ApiResponse,
 } from '@nestjs/swagger/dist';
-import { IpAddress } from 'src/request-ip/request-ip.decorator';
+import { RealIP } from 'nestjs-real-ip';
 
 @Controller('users')
 @ApiTags('/users')
@@ -26,7 +26,7 @@ export class UsersController {
   })
   async create(
     @Body() createUserDto: CreateUserDto,
-    @IpAddress() ipAddress: string,
+    @RealIP() ipAddress: string,
   ) {
     return await this.usersService.create(createUserDto, ipAddress);
   }
