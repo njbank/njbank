@@ -18,7 +18,9 @@ export class UsersService {
   ) {}
   async create(createUserDto: CreateUserDto, Ip: string) {
     const id = createUserDto.id;
-    const user = await this.userRepository.findOneBy({ id });
+    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
+      throw new InternalServerErrorException(e.message);
+    });
     if (user) {
       if (user.userName == createUserDto.userName) {
         throw new ConflictException(`すでに口座があります。`);
@@ -40,11 +42,14 @@ export class UsersService {
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
+    await this.neosService.friendRequest(id);
     return '口座を開設しました。';
   }
 
   async fromId(id: string) {
-    const user = await this.userRepository.findOneBy({ id });
+    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
+      throw new InternalServerErrorException(e.message);
+    });
 
     if (!user) {
       throw new ForbiddenException(`${user}は見つかりませんでした。`);
