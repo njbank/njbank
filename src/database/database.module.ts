@@ -1,13 +1,26 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { User } from './users/entities/user.entity';
-import { Token } from './token/entities/token.entity';
+import { User } from '../users/entities/user.entity';
+import { Token } from '../token/entities/token.entity';
+import 'dotenv/config';
+import { join } from 'path';
+
+export const databaseEntities = [User, Token];
+export const migrationFilesDir = join(
+  __dirname,
+  'database/migrations',
+  '*.entity.{ts,js}',
+);
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
+      imports: [
+        ConfigModule.forRoot({
+          envFilePath: ['.env'],
+        }),
+      ],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
@@ -19,9 +32,9 @@ import { Token } from './token/entities/token.entity';
         extra: {
           ssl: 'true',
         },
-        entities: [User, Token],
+        entities: databaseEntities,
         synchronize: false,
-        migrations: ['src/migration/*.ts'],
+        migrations: [migrationFilesDir],
       }),
     }),
   ],
