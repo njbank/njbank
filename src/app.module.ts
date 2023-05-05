@@ -6,7 +6,7 @@ import { TokenModule } from './token/token.module';
 import { AuthModule } from './auth/auth.module';
 import { AuthMiddleware } from './middleware/auth/auth.middleware';
 import { KfcModule } from './kfc/kfc.module';
-import { DatabaseModule } from './database.modules';
+import { DatabaseModule } from './database/database.module';
 import { NeosModule } from './neos/neos.modules';
 
 @Module({
