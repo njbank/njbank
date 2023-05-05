@@ -1,0 +1,62 @@
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { KfcService } from './kfc.service';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+} from '@nestjs/swagger/dist';
+import { DepositKfcDto } from './dto/deposit-kfc.dto';
+import { WithdrawKfcDto } from './dto/withdraw-kfc.dto';
+import { TransferKfcDto } from './dto/transfer-kfc.dto';
+
+@Controller('kfc')
+@ApiTags('/kfc')
+export class KfcController {
+  constructor(private readonly kfcService: KfcService) {}
+
+  @Get('check/:id')
+  @ApiOperation({ summary: 'KFC残高を確認' })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    example: 'U-hinanoaira',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '所持金を返答',
+  })
+  fromId(@Param('id') id: string) {
+    return this.kfcService.checkKfc(id);
+  }
+
+  @Post('deposit')
+  @ApiOperation({ summary: 'KFCを預ける' })
+  @ApiResponse({
+    status: 200,
+    description: '処理が正常に完了した',
+  })
+  async deposit(@Body() depositKefDto: DepositKfcDto) {
+    return await this.kfcService.depositKfc(depositKefDto);
+  }
+
+  @Post('withdraw')
+  @ApiOperation({ summary: 'KFCを引き出す' })
+  @ApiResponse({
+    status: 200,
+    description: '処理が正常に完了した',
+  })
+  async withdraw(@Body() withdrawKfcDto: WithdrawKfcDto) {
+    return await this.kfcService.withdrawKfc(withdrawKfcDto);
+  }
+
+  @Post('transfer')
+  @ApiOperation({ summary: 'KFCを送金する' })
+  @ApiResponse({
+    status: 200,
+    description: '処理が正常に完了した',
+  })
+  async transfer(@Body() transferKfcDto: TransferKfcDto) {
+    return await this.kfcService.transferKfc(transferKfcDto);
+  }
+}
