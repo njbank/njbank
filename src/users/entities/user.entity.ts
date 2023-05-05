@@ -30,4 +30,8 @@ export class User {
   @Column('jsonb', { default: {} })
   @ApiProperty({ example: { QCR: 100 }, description: '持っているトークン' })
   tokens: { [index: string]: number }[];
+
+  @ApiProperty({ example: '1234', description: 'ワンタイムコード' })
+  @Column({ default: '' })
+  oneTimeCode: string;
 }

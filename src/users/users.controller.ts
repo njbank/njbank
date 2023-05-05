@@ -45,4 +45,32 @@ export class UsersController {
   async fromId(@Param('id') id: string) {
     return await this.usersService.fromId(id);
   }
+
+  @Get('reset-ip/:id')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    example: 'U-hinanoaira',
+  })
+  @ApiParam({
+    name: 'code',
+    type: String,
+    example: '1234',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'ユーザーネームを返答',
+  })
+  async resetIp(@Param('id') id: string) {
+    return await this.usersService.resetIp(id);
+  }
+
+  @Get('entry-code/:id/:code')
+  async entryCode(
+    @Param('id') id: string,
+    @Param('code') code: string,
+    @RealIP() ipAddress: string,
+  ) {
+    return await this.usersService.entryCode(id, code, ipAddress);
+  }
 }
