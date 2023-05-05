@@ -7,6 +7,7 @@ import { WithdrawTokenDto } from './dto/withdraw-token.dto';
 import { DepositTokenDto } from './dto/deposit-token.dto';
 import { BuyTokenDto } from './dto/buy-token.dto';
 import { UpdateTokenDto } from './dto/update-token.dto';
+import { RealIP } from 'nestjs-real-ip';
 
 @Controller('token')
 @ApiTags('/token')
@@ -51,8 +52,12 @@ export class TokenController {
     status: 200,
     description: '所持金を返答',
   })
-  async check(@Param('token') token: string, @Param('id') id: string) {
-    return await this.tokenService.checkToken(id, token);
+  async check(
+    @Param('token') token: string,
+    @Param('id') id: string,
+    @RealIP() ipAddress: string,
+  ) {
+    return await this.tokenService.checkToken(id, token, ipAddress);
   }
 
   @Post(':token/deposit')
@@ -64,8 +69,13 @@ export class TokenController {
   async deposit(
     @Param('token') token: string,
     @Body() depositTokenDto: DepositTokenDto,
+    @RealIP() ipAddress: string,
   ) {
-    return await this.tokenService.depositToken(depositTokenDto, token);
+    return await this.tokenService.depositToken(
+      depositTokenDto,
+      token,
+      ipAddress,
+    );
   }
 
   @Post(':token/withdraw')
@@ -77,8 +87,13 @@ export class TokenController {
   async withdraw(
     @Param('token') token: string,
     @Body() withdrawToken: WithdrawTokenDto,
+    @RealIP() ipAddress: string,
   ) {
-    return await this.tokenService.withdrawToken(withdrawToken, token);
+    return await this.tokenService.withdrawToken(
+      withdrawToken,
+      token,
+      ipAddress,
+    );
   }
 
   @Post(':token/transfer')
@@ -90,8 +105,13 @@ export class TokenController {
   async transfer(
     @Param('token') token: string,
     @Body() transferTokenDto: TransferTokenDto,
+    @RealIP() ipAddress: string,
   ) {
-    return await this.tokenService.transferToken(transferTokenDto, token);
+    return await this.tokenService.transferToken(
+      transferTokenDto,
+      token,
+      ipAddress,
+    );
   }
 
   @Post(':token/buy')
@@ -100,7 +120,11 @@ export class TokenController {
     status: 200,
     description: '処理が正常に完了した',
   })
-  async buy(@Param('token') token: string, @Body() buyTokenDto: BuyTokenDto) {
-    return await this.tokenService.buyToken(buyTokenDto, token);
+  async buy(
+    @Param('token') token: string,
+    @Body() buyTokenDto: BuyTokenDto,
+    @RealIP() ipAddress: string,
+  ) {
+    return await this.tokenService.buyToken(buyTokenDto, token, ipAddress);
   }
 }

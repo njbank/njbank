@@ -62,7 +62,7 @@ export class TokenService {
     return '更新しました。';
   }
 
-  async checkToken(Id: string, name: string) {
+  async checkToken(Id: string, name: string, ipAddress: string) {
     const id = Id;
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
@@ -74,13 +74,20 @@ export class TokenService {
     if (!token) {
       throw new ForbiddenException(`${name}は存在しません。`);
     }
+    if (token.checkingIp) {
+      await this.checkIp(id, ipAddress);
+    }
     if (!user.tokens[name]) {
       return 0;
     }
     return user.tokens[name];
   }
 
-  async depositToken(depositTokenDto: DepositTokenDto, name: string) {
+  async depositToken(
+    depositTokenDto: DepositTokenDto,
+    name: string,
+    ipAddress: string,
+  ) {
     const id = depositTokenDto.id;
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
@@ -91,6 +98,9 @@ export class TokenService {
     });
     if (!token) {
       throw new ForbiddenException(`${name}は存在しません。`);
+    }
+    if (token.checkingIp) {
+      await this.checkIp(id, ipAddress);
     }
     if (user.tokens[name]) {
       user.tokens[name] += depositTokenDto.amount;
@@ -107,7 +117,11 @@ export class TokenService {
     return user.tokens[name];
   }
 
-  async withdrawToken(withdrawTokenDto: WithdrawTokenDto, name: string) {
+  async withdrawToken(
+    withdrawTokenDto: WithdrawTokenDto,
+    name: string,
+    ipAddress: string,
+  ) {
     const id = withdrawTokenDto.id;
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
@@ -118,6 +132,9 @@ export class TokenService {
     });
     if (!token) {
       throw new ForbiddenException(`${name}は存在しません。`);
+    }
+    if (token.checkingIp) {
+      await this.checkIp(id, ipAddress);
     }
     if (user.tokens[name] && user.tokens[name] >= withdrawTokenDto.amount) {
       user.tokens[name] -= withdrawTokenDto.amount;
@@ -134,11 +151,15 @@ export class TokenService {
     return user.tokens[name];
   }
 
-  async transferToken(tranferTokenDto: TransferTokenDto, token: string) {
+  async transferToken(
+    tranferTokenDto: TransferTokenDto,
+    token: string,
+    ipAddress: string,
+  ) {
     return `Todo`;
   }
 
-  async buyToken(buyTokenDto: BuyTokenDto, name: string) {
+  async buyToken(buyTokenDto: BuyTokenDto, name: string, ipAddress: string) {
     const id = buyTokenDto.id;
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
@@ -150,6 +171,7 @@ export class TokenService {
     if (!token) {
       throw new ForbiddenException(`${name}は存在しません。`);
     }
+    await this.checkIp(id, ipAddress);
     if (user.amount < buyTokenDto.amount * token.rate) {
       throw new ForbiddenException(`KFCが足りません。`);
     }
@@ -167,5 +189,17 @@ export class TokenService {
         throw new InternalServerErrorException(e.message);
       });
     return user.tokens[name];
+  }
+
+  async checkIp(id: string, ip: string): Promise<boolean> {
+    const user = await this.userRepository.findOneBy({ id });
+    if (!user) {
+      return false;
+    }
+    if (user.ipAddress === ip) {
+      return true;
+    } else {
+      throw new ForbiddenException(`IPチェックに失敗しました。`);
+    }
   }
 }

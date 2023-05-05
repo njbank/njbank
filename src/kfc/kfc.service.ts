@@ -17,9 +17,7 @@ export class KfcService {
   ) {}
 
   async checkKfc(id: string, ipAddress: string) {
-    if (!this.checkIp(id, ipAddress)) {
-      throw new ForbiddenException(`IPチェックに失敗しました。`);
-    }
+    await this.checkIp(id, ipAddress);
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new ForbiddenException(`${id}は見つかりませんでした。`);
@@ -29,9 +27,7 @@ export class KfcService {
 
   async depositKfc(depositKfcDto: DepositKfcDto, ipAddress: string) {
     const id = depositKfcDto.id;
-    if (!this.checkIp(id, ipAddress)) {
-      throw new ForbiddenException(`IPチェックに失敗しました。`);
-    }
+    await this.checkIp(id, ipAddress);
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new ForbiddenException(`${id}は見つかりませんでした。`);
@@ -46,9 +42,7 @@ export class KfcService {
 
   async withdrawKfc(withdrawKfcDto: WithdrawKfcDto, ipAddress: string) {
     const id = withdrawKfcDto.id;
-    if (!this.checkIp(id, ipAddress)) {
-      throw new ForbiddenException(`IPチェックに失敗しました。`);
-    }
+    await this.checkIp(id, ipAddress);
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new ForbiddenException(`${id}は見つかりませんでした。`);
@@ -66,9 +60,7 @@ export class KfcService {
 
   async transferKfc(transferKfcDto: TransferKfcDto, ipAddress: string) {
     const id = transferKfcDto.id;
-    if (!this.checkIp(id, ipAddress)) {
-      throw new ForbiddenException(`IPチェックに失敗しました。`);
-    }
+    await this.checkIp(id, ipAddress);
     return `Todo`;
   }
 
@@ -77,6 +69,10 @@ export class KfcService {
     if (!user) {
       return false;
     }
-    return user.ipAddress === ip;
+    if (user.ipAddress === ip) {
+      return true;
+    } else {
+      throw new ForbiddenException(`IPチェックに失敗しました。`);
+    }
   }
 }
