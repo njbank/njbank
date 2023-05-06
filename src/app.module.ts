@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -30,6 +30,9 @@ import { UsersModule } from './users/users.module';
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(GetToHeaderMiddleware).forRoutes('*');
-    consumer.apply(AuthMiddleware).forRoutes('*');
+    consumer
+      .apply(AuthMiddleware)
+      .exclude({ path: 'status', method: RequestMethod.GET })
+      .forRoutes('*');
   }
 }
