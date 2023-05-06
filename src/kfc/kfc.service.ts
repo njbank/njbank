@@ -47,7 +47,9 @@ export class KfcService {
       });
     await this.neosService.sendMessage(
       id,
-      `出金 ${depositKfcDto.amount}\nご利用ありがとうございました。`,
+      `入金 ${depositKfcDto.amount}KFC 残高 ${
+        user.amount + depositKfcDto.amount
+      } KFC\nご利用ありがとうございます。`,
     );
     return user.amount + depositKfcDto.amount;
   }
@@ -67,7 +69,9 @@ export class KfcService {
     await this.neosService.sendKfc(
       id,
       withdrawKfcDto.amount,
-      `出金 -\nご利用ありがとうございました。`,
+      `出金 残高 ${
+        user.amount - withdrawKfcDto.amount
+      } KFC\nご利用ありがとうございます。`,
     );
     await this.userRepository
       .update(id, { amount: user.amount - withdrawKfcDto.amount })
@@ -121,7 +125,11 @@ export class KfcService {
         });
       await this.neosService.sendMessage(
         toId,
-        `${user.userName} 様より口座へ ${transferKfcDto.amount} KFC振り込まれました。`,
+        `いつもご利用ありがとうございます。\n${user.userName} 様より口座へ ${
+          transferKfcDto.amount
+        } KFC振り込まれました。\n残高 ${
+          user.amount + transferKfcDto.amount
+        } KFC`,
       );
     }
     await this.userRepository
@@ -132,7 +140,9 @@ export class KfcService {
 
     await this.neosService.sendMessage(
       id,
-      `${user.userName} 様へ ${transferKfcDto.amount} KFC振り込みました。`,
+      `いつもご利用ありがとうございます。\n${user.userName} 様へ ${
+        transferKfcDto.amount
+      } KFC振り込みました。\n残高 ${user.amount - transferKfcDto.amount} KFC`,
     );
     return user.amount - transferKfcDto.amount;
   }
