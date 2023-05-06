@@ -192,8 +192,11 @@ export class TokenService {
   }
 
   async transferToken(
-    tranferTokenDto: TransferTokenDto,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    transferTokenDto: TransferTokenDto,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     token: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ipAddress: string,
   ) {
     return `Todo`;
