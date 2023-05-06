@@ -1,4 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger/dist/decorators';
+import {
+  ApiProperty,
+  ApiPropertyOptional,
+} from '@nestjs/swagger/dist/decorators';
+
+import { RankingType } from '../entities/ranking-type.entity';
 
 export class CreateTokenDto {
   @ApiProperty({ example: 'QCR', description: 'トークンの名前' })
@@ -15,4 +20,8 @@ export class CreateTokenDto {
 
   @ApiProperty({ example: true, description: 'IPチェックを行うか' })
   checkingIp: boolean;
+
+  @ApiProperty({ enum: RankingType, description: '常に行うランキングの期間' })
+  @ApiPropertyOptional()
+  rankingType?: RankingType;
 }

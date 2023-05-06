@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
 import { PassportModule } from '@nestjs/passport';
+
 import { ApiKeyStrategy } from './apiKey.strategy';
+import { AuthService } from './auth.service';
 
 @Module({
   imports: [PassportModule],

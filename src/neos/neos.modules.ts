@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { NeosService } from './neos.service';
+
 import { NeosController } from './neos.controller';
+import { NeosService } from './neos.service';
 
 @Module({
   controllers: [NeosController],

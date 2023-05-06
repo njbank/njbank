@@ -3,6 +3,8 @@ import {
   ApiPropertyOptional,
 } from '@nestjs/swagger/dist/decorators';
 
+import { RankingType } from '../entities/ranking-type.entity';
+
 export class UpdateTokenDto {
   @ApiProperty({
     example: 'U-hinanoaira',
@@ -18,4 +20,8 @@ export class UpdateTokenDto {
   @ApiProperty({ example: true, description: 'IPチェックを行うか' })
   @ApiPropertyOptional()
   checkingIp?: boolean;
+
+  @ApiProperty({ enum: RankingType, description: '常に行うランキングの期間' })
+  @ApiPropertyOptional()
+  rankingType?: RankingType;
 }

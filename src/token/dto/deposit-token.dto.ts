@@ -1,4 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger/dist/decorators';
+import {
+  ApiProperty,
+  ApiPropertyOptional,
+} from '@nestjs/swagger/dist/decorators';
 
 export class DepositTokenDto {
   @ApiProperty({ example: 'U-hinanoaira', description: 'NeosユーザーID' })
@@ -6,4 +9,12 @@ export class DepositTokenDto {
 
   @ApiProperty({ example: 100, description: '金額' })
   amount: number;
+
+  @ApiProperty({ example: false, description: 'ランキング反映' })
+  @ApiPropertyOptional()
+  isRanking: boolean;
+
+  @ApiProperty({ example: [], description: '反映するランキング一覧' })
+  @ApiPropertyOptional()
+  tags: string[];
 }

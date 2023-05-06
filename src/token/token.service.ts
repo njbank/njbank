@@ -1,26 +1,42 @@
+import * as dayjs from 'dayjs';
+import * as timezone from 'dayjs/plugin/timezone';
+import * as utc from 'dayjs/plugin/utc';
+import { And, Any, ArrayContains, Repository } from 'typeorm';
+
 import {
   ConflictException,
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+
+import { RankingBoard } from '../ranking/entities/ranking-board.entity';
+import { RankingEntries } from '../ranking/entities/ranking-entries.entity';
+import { User } from '../users/entities/user.entity';
+import { BuyTokenDto } from './dto/buy-token.dto';
 import { CreateTokenDto } from './dto/create-token.dto';
 import { DepositTokenDto } from './dto/deposit-token.dto';
-import { WithdrawTokenDto } from './dto/withdraw-token.dto';
 import { TransferTokenDto } from './dto/transfer-token.dto';
-import { BuyTokenDto } from './dto/buy-token.dto';
 import { UpdateTokenDto } from './dto/update-token.dto';
+import { WithdrawTokenDto } from './dto/withdraw-token.dto';
+import { RankingType } from './entities/ranking-type.entity';
 import { Token } from './entities/token.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class TokenService {
   constructor(
     @InjectRepository(Token) private tokenRepository: Repository<Token>,
     @InjectRepository(User) private userRepository: Repository<User>,
-  ) {}
+    @InjectRepository(RankingBoard)
+    private rankingBoardRepository: Repository<RankingBoard>,
+    @InjectRepository(RankingEntries)
+    private rankingEntriesRepository: Repository<RankingEntries>,
+  ) {
+    dayjs.extend(utc);
+    dayjs.extend(timezone);
+    dayjs.tz.setDefault('Asia/Tokyo');
+  }
 
   async create(createTokenDto: CreateTokenDto) {
     const name = createTokenDto.name;
@@ -36,6 +52,7 @@ export class TokenService {
         owner: createTokenDto.owner,
         rate: createTokenDto.rate,
         checkingIp: createTokenDto.checkingIp,
+        rankingType: createTokenDto.rankingType,
       })
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
@@ -55,6 +72,7 @@ export class TokenService {
         owner: updateTokenDto.owner,
         rate: updateTokenDto.rate,
         checkingIp: updateTokenDto.checkingIp,
+        rankingType: updateTokenDto.rankingType,
       })
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
@@ -118,6 +136,14 @@ export class TokenService {
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
+    if (depositTokenDto.isRanking) {
+      await this.rankingUpdate(
+        token,
+        user,
+        depositTokenDto.amount,
+        depositTokenDto.tags,
+      );
+    }
     return user.tokens[name];
   }
 
@@ -154,6 +180,14 @@ export class TokenService {
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
+    if (withdrawTokenDto.isRanking) {
+      this.rankingUpdate(
+        token,
+        user,
+        withdrawTokenDto.amount * -1,
+        withdrawTokenDto.tags,
+      );
+    }
     return user.tokens[name];
   }
 
@@ -199,10 +233,15 @@ export class TokenService {
     return user.tokens[name];
   }
 
-  async checkIp(id: string, ip: string): Promise<boolean> {
-    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
+  private async checkIp(id: string, ip: string): Promise<boolean> {
+    const user = await this.userRepository
+      .findOneBy({ id })
+      .catch((e) => {
+        throw new InternalServerErrorException(e.message);
+      })
+      .catch((e) => {
+        throw new InternalServerErrorException(e.message);
+      });
     if (!user) {
       return false;
     }
@@ -210,6 +249,127 @@ export class TokenService {
       return true;
     } else {
       throw new ForbiddenException(`IPチェックに失敗しました。`);
+    }
+  }
+
+  private async rankingUpdate(
+    token: Token,
+    user: User,
+    amount: number,
+    tags?: string[],
+  ) {
+    const date = new Date();
+    let boards: RankingBoard[];
+    if (tags === undefined || tags === null || tags.length === 0) {
+      const query = await this.rankingBoardRepository.query(
+        `SELECT * FROM ranking_board WHERE date @> '${dayjs(date).format(
+          'YYYY-MM-DD hh:mm:ss.SSSZ',
+        )}'::timestamptz`,
+      );
+      boards = [];
+      for (const item of query) {
+        if (item.token === token.name) {
+          boards.push({
+            id: item.id,
+            tag: item.tag,
+            token: item.token,
+            date: item.date,
+          });
+        }
+      }
+    } else {
+      boards = await this.rankingBoardRepository
+        .find({
+          where: [{ token: token.name, tag: Any(tags) }],
+        })
+        .catch((e) => {
+          throw new InternalServerErrorException(e.message);
+        });
+    }
+    if (boards.length === 0) {
+      if (token.rankingType === RankingType.none) {
+        throw new ForbiddenException('ランキングボードが見つかりませんでした');
+      }
+      let newTag: string;
+      let newRange: string;
+      switch (token.rankingType) {
+        case RankingType.monthly:
+          {
+            const startDate = new Date(date);
+            startDate.setDate(1);
+            const endDate = new Date(date);
+            endDate.setDate(1);
+            endDate.setMonth(endDate.getMonth() + 1);
+            newTag = dayjs(startDate).tz().format('YYYY-MM');
+            newRange = `[${dayjs(startDate)
+              .tz()
+              .format('YYYY-MM-DD')} 00:00:00.000+09:00,${dayjs(endDate)
+              .tz()
+              .format('YYYY-MM-DD')} 00:00:00.000+09:00)`;
+          }
+          break;
+        case RankingType.yearly:
+          {
+            const startDate = new Date(date);
+            startDate.setDate(1);
+            startDate.setMonth(0);
+            const endDate = new Date(date);
+            endDate.setDate(1);
+            endDate.setMonth(0);
+            endDate.setDate(1);
+            endDate.setFullYear(endDate.getFullYear() + 1);
+            newTag = dayjs(startDate).tz().format('YYYY');
+            newRange = `[${dayjs(startDate)
+              .tz()
+              .format('YYYY-MM-DD')} 00:00:00.000+09:00,${dayjs(endDate)
+              .tz()
+              .format('YYYY-MM-DD')} 00:00:00.000+09:00)`;
+          }
+          break;
+        case RankingType.persistent:
+          {
+            newTag = `${token.name}-persistent`;
+            newRange = `[${dayjs(date)
+              .tz()
+              .format('YYYY-MM-DD hh:mm:ss.SSSZ')},)`;
+          }
+          break;
+      }
+      await this.rankingBoardRepository
+        .save({
+          token: token.name,
+          tag: newTag,
+          date: newRange,
+        })
+        .catch((e) => {
+          throw new InternalServerErrorException(e.message);
+        });
+      await this.rankingUpdate(token, user, amount, tags);
+    } else {
+      for (const item of boards) {
+        const entry = await this.rankingEntriesRepository
+          .findOneBy([{ board: item.id, userId: user.id }])
+          .catch((e) => {
+            throw new InternalServerErrorException(e.message);
+          });
+        if (entry) {
+          await this.rankingEntriesRepository.update(entry.id, {
+            amount: entry.amount + amount,
+            userName: user.userName,
+          });
+        } else {
+          await this.rankingEntriesRepository
+            .save({
+              userId: user.id,
+              userName: user.userName,
+              board: item.id,
+              amount: amount,
+            })
+            .catch((e) => {
+              throw new InternalServerErrorException(e.message);
+            });
+        }
+      }
     }
   }
 }

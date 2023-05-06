@@ -1,17 +1,17 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { User } from '../users/entities/user.entity';
-import { Token } from '../token/entities/token.entity';
 import 'dotenv/config';
+
 import { join } from 'path';
 
-export const databaseEntities = [User, Token];
-export const migrationFilesDir = join(
-  __dirname,
-  'database/migrations',
-  '*.entity.{ts,js}',
-);
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { RankingBoard } from '../ranking/entities/ranking-board.entity';
+import { RankingEntries } from '../ranking/entities/ranking-entries.entity';
+import { Token } from '../token/entities/token.entity';
+import { User } from '../users/entities/user.entity';
+
+export const databaseEntities = [User, Token, RankingBoard, RankingEntries];
 
 @Module({
   imports: [
@@ -34,7 +34,6 @@ export const migrationFilesDir = join(
         },
         entities: databaseEntities,
         synchronize: false,
-        migrations: [migrationFilesDir],
       }),
     }),
   ],
