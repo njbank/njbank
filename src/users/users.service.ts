@@ -18,6 +18,7 @@ export class UsersService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly neosService: NeosService,
   ) {}
+
   async create(createUserDto: CreateUserDto, Ip: string) {
     const id = createUserDto.id;
     const user = await this.userRepository.findOneBy({ id }).catch((e) => {
@@ -59,6 +60,7 @@ export class UsersService {
 
     return user.userName;
   }
+
   async resetIp(id: string) {
     const user = await this.userRepository.findOneBy({ id }).catch((e) => {
       throw new InternalServerErrorException(e.message);
@@ -76,6 +78,7 @@ export class UsersService {
     );
     return 'コードを送信しました';
   }
+
   async entryCode(id: string, code: string, ip: string) {
     const user = await this.userRepository.findOneBy({ id }).catch((e) => {
       throw new InternalServerErrorException(e.message);
@@ -96,5 +99,59 @@ export class UsersService {
       `IP登録情報を更新しました。\nThe registered IP has been updated.`,
     );
     return 'IP登録情報を更新しました';
+  }
+
+  async listSkin(id: string) {
+    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
+      throw new InternalServerErrorException(e.message);
+    });
+    if (!user) {
+      throw new ForbiddenException(`${id}の口座はありません。`);
+    }
+    user.skin.sort();
+    return user.skin.join(',');
+  }
+
+  async addSkin(id: string, skin: string) {
+    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
+      throw new InternalServerErrorException(e.message);
+    });
+    if (!user) {
+      throw new ForbiddenException(`${id}の口座はありません。`);
+    }
+    if (user.skin.includes(skin)) {
+      throw new ForbiddenException(`既に登録されています。`);
+    }
+    user.skin.push(skin);
+    user.skin.sort();
+    await this.userRepository
+      .update(user.id, { skin: user.skin })
+      .catch((e) => {
+        throw new InternalServerErrorException(e.message);
+      });
+    return '登録しました';
+  }
+
+  async delSkin(id: string, skin: string) {
+    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
+      throw new InternalServerErrorException(e.message);
+    });
+    if (!user) {
+      throw new ForbiddenException(`${id}の口座はありません。`);
+    }
+    if (!user.skin.includes(skin)) {
+      throw new ForbiddenException(`そのスキンはありません。`);
+    }
+    user.skin.sort();
+    await this.userRepository
+      .update(user.id, {
+        skin: user.skin.filter((item) => {
+          return item !== skin;
+        }),
+      })
+      .catch((e) => {
+        throw new InternalServerErrorException(e.message);
+      });
+    return '削除しました';
   }
 }

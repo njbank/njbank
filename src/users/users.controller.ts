@@ -1,6 +1,14 @@
 import { RealIP } from 'nestjs-real-ip';
 
-import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import {
   ApiOperation,
   ApiParam,
@@ -51,6 +59,7 @@ export class UsersController {
   }
 
   @Get('reset-ip/:id')
+  @ApiOperation({ summary: 'IPをリセットする' })
   @HttpCode(200)
   @ApiParam({
     name: 'id',
@@ -66,6 +75,7 @@ export class UsersController {
   }
 
   @Get('entry-code/:id/:code')
+  @ApiOperation({ summary: 'IPリセットのOTPを入力' })
   @HttpCode(200)
   @ApiParam({
     name: 'id',
@@ -87,5 +97,60 @@ export class UsersController {
     @RealIP() ipAddress: string,
   ) {
     return await this.usersService.entryCode(id, code, ipAddress);
+  }
+
+  @Get('skin/list/:id')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    example: 'U-hinanoaira',
+  })
+  @ApiOperation({ summary: 'スキン一覧を取得' })
+  @ApiResponse({
+    status: 200,
+    description: 'スキン一覧を返答',
+  })
+  async listSkin(@Param('id') id: string) {
+    return await this.usersService.listSkin(id);
+  }
+
+  @Get('skin/add/:id/:skin')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    example: 'U-hinanoaira',
+  })
+  @ApiParam({
+    name: 'skin',
+    type: String,
+    example: 'SlotSkin-01',
+  })
+  @ApiOperation({ summary: 'スキンを追加' })
+  @ApiResponse({
+    status: 200,
+    description: '処理が正しく完了した',
+  })
+  async addSkin(@Param('id') id: string, @Param('skin') skin: string) {
+    return await this.usersService.addSkin(id, skin);
+  }
+
+  @Get('skin/delete/:id/:skin')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    example: 'U-hinanoaira',
+  })
+  @ApiParam({
+    name: 'skin',
+    type: String,
+    example: 'SlotSkin-01',
+  })
+  @ApiOperation({ summary: 'スキンを削除' })
+  @ApiResponse({
+    status: 200,
+    description: '処理が正しく完了した',
+  })
+  async delSkin(@Param('id') id: string, @Param('skin') skin: string) {
+    return await this.usersService.delSkin(id, skin);
   }
 }
