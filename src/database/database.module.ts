@@ -6,10 +6,17 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { RankingBoard } from '../ranking/entities/ranking-board.entity';
 import { RankingEntries } from '../ranking/entities/ranking-entries.entity';
+import { Skin } from '../skin/entities/skin.entity';
 import { Token } from '../token/entities/token.entity';
 import { User } from '../users/entities/user.entity';
 
-export const databaseEntities = [User, Token, RankingBoard, RankingEntries];
+export const databaseEntities = [
+  User,
+  Token,
+  RankingBoard,
+  RankingEntries,
+  Skin,
+];
 
 @Module({
   imports: [
