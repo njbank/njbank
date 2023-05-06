@@ -74,8 +74,9 @@ export class UsersService {
     });
     this.neosService.sendMessage(
       id,
-      `以下のコードを入力してください。\nPlease enter this code.\n${code}`,
+      `以下のコードを入力してください。\nPlease enter this code.`,
     );
+    this.neosService.sendMessage(id, `${code}`);
     return 'コードを送信しました';
   }
 
