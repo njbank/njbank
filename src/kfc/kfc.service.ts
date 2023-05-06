@@ -45,6 +45,10 @@ export class KfcService {
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
+    await this.neosService.sendMessage(
+      id,
+      `出金 ${depositKfcDto.amount}\nご利用ありがとうございました。`,
+    );
     return user.amount + depositKfcDto.amount;
   }
 
@@ -63,7 +67,7 @@ export class KfcService {
     await this.neosService.sendKfc(
       id,
       withdrawKfcDto.amount,
-      `出金 - ご利用ありがとうございました。`,
+      `出金 -\nご利用ありがとうございました。`,
     );
     await this.userRepository
       .update(id, { amount: user.amount - withdrawKfcDto.amount })
@@ -125,6 +129,11 @@ export class KfcService {
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
+
+    await this.neosService.sendMessage(
+      id,
+      `${user.userName} 様へ ${transferKfcDto.amount} KFC振り込みました。`,
+    );
     return user.amount - transferKfcDto.amount;
   }
 
