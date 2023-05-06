@@ -1,14 +1,15 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
-import { TokenModule } from './token/token.module';
 import { AuthModule } from './auth/auth.module';
-import { AuthMiddleware } from './middleware/auth/auth.middleware';
-import { KfcModule } from './kfc/kfc.module';
 import { DatabaseModule } from './database/database.module';
-import { NeosModule } from './neos/neos.modules';
+import { KfcModule } from './kfc/kfc.module';
+import { AuthMiddleware } from './middleware/auth/auth.middleware';
 import { GetToHeaderMiddleware } from './middleware/auth/get-to-header.middleware';
+import { NeosModule } from './neos/neos.modules';
+import { TokenModule } from './token/token.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [

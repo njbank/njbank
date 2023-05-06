@@ -1,13 +1,15 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
-import { TokenService } from './token.service';
-import { CreateTokenDto } from './dto/create-token.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
-import { TransferTokenDto } from './dto/transfer-token.dto';
-import { WithdrawTokenDto } from './dto/withdraw-token.dto';
-import { DepositTokenDto } from './dto/deposit-token.dto';
-import { BuyTokenDto } from './dto/buy-token.dto';
-import { UpdateTokenDto } from './dto/update-token.dto';
 import { RealIP } from 'nestjs-real-ip';
+
+import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+
+import { BuyTokenDto } from './dto/buy-token.dto';
+import { CreateTokenDto } from './dto/create-token.dto';
+import { DepositTokenDto } from './dto/deposit-token.dto';
+import { TransferTokenDto } from './dto/transfer-token.dto';
+import { UpdateTokenDto } from './dto/update-token.dto';
+import { WithdrawTokenDto } from './dto/withdraw-token.dto';
+import { TokenService } from './token.service';
 
 @Controller('token')
 @ApiTags('/token')
@@ -15,6 +17,7 @@ export class TokenController {
   constructor(private readonly tokenService: TokenService) {}
 
   @Post('create')
+  @HttpCode(201)
   @ApiOperation({ summary: 'トークン作成' })
   @ApiResponse({
     status: 201,
@@ -29,6 +32,7 @@ export class TokenController {
   }
 
   @Post(':token/update')
+  @HttpCode(200)
   @ApiOperation({ summary: 'トークン更新' })
   @ApiResponse({
     status: 200,
@@ -42,6 +46,7 @@ export class TokenController {
   }
 
   @Get(':token/check/:id')
+  @HttpCode(200)
   @ApiOperation({ summary: 'トークン残高を確認' })
   @ApiParam({
     name: 'id',
@@ -61,6 +66,7 @@ export class TokenController {
   }
 
   @Post(':token/deposit')
+  @HttpCode(200)
   @ApiOperation({ summary: 'トークンを預ける' })
   @ApiResponse({
     status: 200,
@@ -79,6 +85,7 @@ export class TokenController {
   }
 
   @Post(':token/withdraw')
+  @HttpCode(200)
   @ApiOperation({ summary: 'トークンを引き出す' })
   @ApiResponse({
     status: 200,
@@ -97,6 +104,7 @@ export class TokenController {
   }
 
   @Post(':token/transfer')
+  @HttpCode(200)
   @ApiOperation({ summary: 'トークンを送金する' })
   @ApiResponse({
     status: 200,
@@ -115,6 +123,7 @@ export class TokenController {
   }
 
   @Post(':token/buy')
+  @HttpCode(200)
   @ApiOperation({ summary: 'トークンを購入する' })
   @ApiResponse({
     status: 200,

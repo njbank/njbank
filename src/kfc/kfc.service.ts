@@ -1,15 +1,17 @@
+import { Repository } from 'typeorm';
+
 import {
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { DepositKfcDto } from './dto/deposit-kfc.dto';
-import { WithdrawKfcDto } from './dto/withdraw-kfc.dto';
-import { TransferKfcDto } from './dto/transfer-kfc.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/users/entities/user.entity';
-import { Repository } from 'typeorm';
-import { NeosService } from 'src/neos/neos.service';
+
+import { NeosService } from '../neos/neos.service';
+import { User } from '../users/entities/user.entity';
+import { DepositKfcDto } from './dto/deposit-kfc.dto';
+import { TransferKfcDto } from './dto/transfer-kfc.dto';
+import { WithdrawKfcDto } from './dto/withdraw-kfc.dto';
 
 @Injectable()
 export class KfcService {

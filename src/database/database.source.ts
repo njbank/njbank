@@ -1,7 +1,10 @@
-import { databaseEntities, migrationFilesDir } from './database.module';
 import 'dotenv/config';
+
 import { DataSource } from 'typeorm';
-import 'dotenv/config';
+
+import { databaseEntities } from './database.module';
+
+const migrationFilesDir = 'src/database/migrations/*.ts';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',

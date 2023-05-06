@@ -1,13 +1,15 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
+import { RealIP } from 'nestjs-real-ip';
+
+import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
 import {
-  ApiTags,
   ApiOperation,
   ApiParam,
   ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger/dist';
-import { RealIP } from 'nestjs-real-ip';
+
+import { CreateUserDto } from './dto/create-user.dto';
+import { UsersService } from './users.service';
 
 @Controller('users')
 @ApiTags('/users')
@@ -15,6 +17,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post('create')
+  @HttpCode(201)
   @ApiOperation({ summary: '口座開設' })
   @ApiResponse({
     status: 201,
@@ -32,6 +35,7 @@ export class UsersController {
   }
 
   @Get('/get/:id')
+  @HttpCode(200)
   @ApiOperation({ summary: 'IDからユーザーネームを確認' })
   @ApiParam({
     name: 'id',
@@ -47,6 +51,7 @@ export class UsersController {
   }
 
   @Get('reset-ip/:id')
+  @HttpCode(200)
   @ApiParam({
     name: 'id',
     type: String,
@@ -61,6 +66,7 @@ export class UsersController {
   }
 
   @Get('entry-code/:id/:code')
+  @HttpCode(200)
   @ApiParam({
     name: 'id',
     type: String,

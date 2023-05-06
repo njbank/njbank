@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { KfcService } from './kfc.service';
-import { KfcController } from './kfc.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from 'src/users/entities/user.entity';
-import { NeosModule } from 'src/neos/neos.modules';
+
+import { NeosModule } from '../neos/neos.modules';
+import { User } from '../users/entities/user.entity';
+import { KfcController } from './kfc.controller';
+import { KfcService } from './kfc.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User]), NeosModule],

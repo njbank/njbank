@@ -1,14 +1,16 @@
+import { Repository } from 'typeorm';
+
 import {
   ConflictException,
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
+
+import { NeosService } from '../neos/neos.service';
+import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
-import { NeosService } from 'src/neos/neos.service';
 
 @Injectable()
 export class UsersService {

@@ -1,10 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger/dist/decorators';
-import { role } from './role';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-interface Tokens {
-  [index: string]: number;
-}
+import { ApiProperty } from '@nestjs/swagger/dist/decorators';
+
+import { Role } from './role.entity';
+
 @Entity('User')
 export class User {
   @PrimaryColumn()
@@ -17,7 +16,7 @@ export class User {
 
   @Column({ default: 'Guest' })
   @ApiProperty({ example: 'Guest', description: 'ユーザーロール' })
-  role: role;
+  role: Role;
 
   @Column()
   @ApiProperty({ example: '::1', description: 'IPアドレス' })

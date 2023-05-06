@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { UsersController } from './users.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { NeosModule } from '../neos/neos.modules';
 import { User } from './entities/user.entity';
-import { NeosModule } from 'src/neos/neos.modules';
+import { UsersController } from './users.controller';
+import { UsersService } from './users.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User]), NeosModule],
