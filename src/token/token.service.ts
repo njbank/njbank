@@ -1,7 +1,7 @@
 import * as dayjs from 'dayjs';
 import * as timezone from 'dayjs/plugin/timezone';
 import * as utc from 'dayjs/plugin/utc';
-import { And, Any, ArrayContains, Repository } from 'typeorm';
+import { Any, Repository } from 'typeorm';
 
 import {
   ConflictException,
@@ -280,7 +280,7 @@ export class TokenService {
     } else {
       boards = await this.rankingBoardRepository
         .find({
-          where: [{ token: token.name, tag: Any(tags) }],
+          where: { token: token.name, tag: Any(tags) },
         })
         .catch((e) => {
           throw new InternalServerErrorException(e.message);

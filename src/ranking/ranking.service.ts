@@ -30,8 +30,7 @@ export class RankingService {
     }
     const entry = await this.rankingEntriesRepository
       .find({
-        select: ['userName', 'board', 'amount'],
-        where: [{ board: board.id }],
+        where: { board: board.id },
         order: { amount: 'desc', userName: 'asc' },
       })
       .catch((e) => {
@@ -40,9 +39,6 @@ export class RankingService {
     let ans = '';
     for (let i = 0; i < entry.length; i++) {
       const item = entry[i];
-      if (i !== 0) {
-        ans += ',';
-      }
       ans += `${i !== 0 ? ',' : ''}${encodeURI(item.userName)}:${item.amount}`;
     }
     return ans;

@@ -8,6 +8,7 @@ import { KfcModule } from './kfc/kfc.module';
 import { AuthMiddleware } from './middleware/auth/auth.middleware';
 import { GetToHeaderMiddleware } from './middleware/auth/get-to-header.middleware';
 import { NeosModule } from './neos/neos.modules';
+import { RankingModule } from './ranking/ranking.module';
 import { TokenModule } from './token/token.module';
 import { UsersModule } from './users/users.module';
 
@@ -19,6 +20,7 @@ import { UsersModule } from './users/users.module';
     KfcModule,
     DatabaseModule,
     NeosModule,
+    RankingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

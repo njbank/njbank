@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode } from '@nestjs/common';
+import { Controller, Get, HttpCode, Param } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 
 import { RankingService } from './ranking.service';
@@ -21,7 +21,7 @@ export class RankingController {
     type: String,
     example: '20220400',
   })
-  async getEntries(token: string, tag: string) {
-    await this.rankingService.getEntries(token, tag);
+  async getEntries(@Param('token') token: string, @Param('tag') tag: string) {
+    return await this.rankingService.getEntries(token, tag);
   }
 }
