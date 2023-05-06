@@ -6,10 +6,18 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class NeosService {
-  private neos = new Neos({
-    username: process.env.NEOS_USER,
-    password: process.env.NEOS_PASS,
-  });
+  private neos = new Neos(
+    {
+      username: process.env.NEOS_USER,
+      password: process.env.NEOS_PASS,
+    },
+    {
+      saveLoginCredential: true,
+      useEvents: true,
+      autoSync: true,
+      overrideBaseUrl: 'https://apiproxy.neos.love/',
+    },
+  );
   constructor() {
     this.neos.on('FriendRequested', (friend) => {
       this.neos.addFriend({ targetUserId: friend.id });
