@@ -156,10 +156,19 @@ export class UsersService {
     return '削除しました';
   }
 
-  async getUser(id: string) {
-    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
+  async getUser(id: string, userName = false): Promise<User> {
+    let user: User;
+    if (userName) {
+      user = await this.userRepository
+        .findOneBy({ userName: id })
+        .catch((e) => {
+          throw new InternalServerErrorException(e.message);
+        });
+    } else {
+      user = await this.userRepository.findOneBy({ id }).catch((e) => {
+        throw new InternalServerErrorException(e.message);
+      });
+    }
     if (!user) {
       throw new ForbiddenException(`${id}の口座はありません。`);
     }

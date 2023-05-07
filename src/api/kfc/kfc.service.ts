@@ -22,131 +22,82 @@ export class KfcService {
     private readonly usersService: UsersService,
   ) {}
 
-  async checkKfc(id: string, ipAddress: string) {
+  async checkKfc(id: string, ipAddress: string): Promise<string> {
     await this.usersService.checkIp(id, ipAddress);
-    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
-    if (!user) {
-      throw new ForbiddenException(`${id}は見つかりませんでした。`);
-    }
-    return user.amount;
+    const user = await this.usersService.getUser(id);
+    return `${user.amount}`;
   }
 
-  async depositKfc(depositKfcDto: DepositKfcDto, ipAddress: string) {
-    const id = depositKfcDto.id;
-    await this.usersService.checkIp(id, ipAddress);
-    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
-    if (!user) {
-      throw new ForbiddenException(`${id}は見つかりませんでした。`);
-    }
-    await this.userRepository
-      .update(id, { amount: user.amount + depositKfcDto.amount })
-      .catch((e) => {
-        throw new InternalServerErrorException(e.message);
-      });
+  async depositKfc(
+    depositKfcDto: DepositKfcDto,
+    ipAddress: string,
+  ): Promise<string> {
+    await this.usersService.checkIp(depositKfcDto.id, ipAddress);
+    const user = await this.usersService.getUser(depositKfcDto.id);
+    const userBalance = await this.addKfc(user, depositKfcDto.amount);
     await this.neosService.sendMessage(
-      id,
-      `入金 ${depositKfcDto.amount}KFC 残高 ${
-        user.amount + depositKfcDto.amount
-      } KFC\nご利用ありがとうございます。`,
+      depositKfcDto.id,
+      `ご利用ありがとうございます。\n入金 ${depositKfcDto.amount}KFC 残高 ${userBalance} KFC`,
     );
-    return user.amount + depositKfcDto.amount;
+    return `${userBalance}`;
   }
 
-  async withdrawKfc(withdrawKfcDto: WithdrawKfcDto, ipAddress: string) {
+  async withdrawKfc(
+    withdrawKfcDto: WithdrawKfcDto,
+    ipAddress: string,
+  ): Promise<string> {
     const id = withdrawKfcDto.id;
     await this.usersService.checkIp(id, ipAddress);
-    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
-    if (!user) {
-      throw new ForbiddenException(`${id}は見つかりませんでした。`);
-    }
+    const user = await this.usersService.getUser(withdrawKfcDto.id);
     if (user.amount < withdrawKfcDto.amount) {
       throw new ForbiddenException(`お金が足りません。`);
     }
     await this.neosService.sendKfc(
       id,
       withdrawKfcDto.amount,
-      `出金 残高 ${
+      `ご利用ありがとうございます。\n出金 残高 ${
         user.amount - withdrawKfcDto.amount
-      } KFC\nご利用ありがとうございます。`,
+      } KFC`,
     );
-    await this.userRepository
-      .update(id, { amount: user.amount - withdrawKfcDto.amount })
-      .catch((e) => {
-        throw new InternalServerErrorException(e.message);
-      });
-    return user.amount - withdrawKfcDto.amount;
+    const userBalance = await this.removeKfc(user, withdrawKfcDto.amount);
+    return `${userBalance}`;
   }
 
-  async transferKfc(transferKfcDto: TransferKfcDto, ipAddress: string) {
-    const id = transferKfcDto.id;
-    let toId = transferKfcDto.to;
-    await this.usersService.checkIp(id, ipAddress);
-    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
-    if (!user) {
-      throw new ForbiddenException(`${id}は見つかりませんでした。`);
-    }
-    let toUser = await this.userRepository
-      .findOneBy({ id: toId })
-      .catch((e) => {
-        throw new InternalServerErrorException(e.message);
-      });
-    if (!toUser) {
-      toUser = await this.userRepository
-        .findOneBy({ userName: toId })
-        .catch((e) => {
-          throw new InternalServerErrorException(e.message);
-        });
-      if (!toUser) {
-        throw new ForbiddenException(`${toId}は見つかりませんでした。`);
-      } else {
-        toId = toUser.id;
-      }
-    }
-    if (user.amount < transferKfcDto.amount) {
+  async transferKfc(
+    transferKfcDto: TransferKfcDto,
+    ipAddress: string,
+  ): Promise<string> {
+    const fromUser = await this.usersService.getUser(transferKfcDto.id);
+    const toUser = await this.usersService.getUser(
+      transferKfcDto.to,
+      transferKfcDto.to.startsWith('U-'),
+    );
+    await this.usersService.checkIp(fromUser.id, ipAddress);
+    if (fromUser.amount < transferKfcDto.amount) {
       throw new ForbiddenException(`お金が足りません。`);
     }
     if (transferKfcDto.dest === 'account') {
       await this.neosService.sendKfc(
-        toId,
+        toUser.id,
         transferKfcDto.amount,
-        `${user.userName} 様より送金がありました。`,
+        `${fromUser.userName} 様より送金がありました。`,
       );
     } else {
-      await this.userRepository
-        .update(toId, { amount: user.amount + transferKfcDto.amount })
-        .catch((e) => {
-          throw new InternalServerErrorException(e.message);
-        });
+      const toUserBalance = await this.addKfc(toUser, transferKfcDto.amount);
       await this.neosService.sendMessage(
-        toId,
-        `いつもご利用ありがとうございます。\n${user.userName} 様より口座へ ${
-          transferKfcDto.amount
-        } KFC振り込まれました。\n残高 ${
-          user.amount + transferKfcDto.amount
-        } KFC`,
+        toUser.id,
+        `ご利用ありがとうございます。\n${fromUser.userName} 様より口座へ ${transferKfcDto.amount} KFC振り込まれました。\n残高 ${toUserBalance} KFC`,
       );
     }
-    await this.userRepository
-      .update(id, { amount: user.amount - transferKfcDto.amount })
-      .catch((e) => {
-        throw new InternalServerErrorException(e.message);
-      });
-
-    await this.neosService.sendMessage(
-      id,
-      `いつもご利用ありがとうございます。\n${user.userName} 様へ ${
-        transferKfcDto.amount
-      } KFC振り込みました。\n残高 ${user.amount - transferKfcDto.amount} KFC`,
+    const fromUserBlance = await this.removeKfc(
+      fromUser,
+      transferKfcDto.amount,
     );
-    return user.amount - transferKfcDto.amount;
+    await this.neosService.sendMessage(
+      fromUser.id,
+      `ご利用ありがとうございます。\n${toUser.userName} 様へ ${transferKfcDto.amount} KFC振り込みました。\n残高 ${fromUserBlance} KFC`,
+    );
+    return `${fromUserBlance}`;
   }
 
   async addKfc(user: User, amount: number) {
