@@ -45,7 +45,7 @@ export class ShopService {
     if (shopAnnounce) {
       await this.neosService.sendMessage(
         shop.owner,
-        `${user.userName} 様より ${shop.shopName} へ ${amount} KFCの支払いがありました。\n残高 ${shopBalance}} KFC`,
+        `${user.userName} 様より ${shop.shopName} へ ${amount} KFCの支払いがありました。\n残高 ${shopBalance} KFC`,
       );
     }
     return '支払いが完了しました。';
@@ -68,7 +68,7 @@ export class ShopService {
     if (shopAnnounce) {
       await this.neosService.sendMessage(
         shop.owner,
-        `${shop.shopName} から ${user.userName} 様へ ${amount} KFC支払いました。\n残高 ${shopBalance}} KFC`,
+        `${shop.shopName} から ${user.userName} 様へ ${amount} KFC支払いました。\n残高 ${shopBalance} KFC`,
       );
     }
     return '支払いが完了しました。';
@@ -90,7 +90,7 @@ export class ShopService {
     if (shopAnnounce) {
       await this.neosService.sendMessage(
         shop.owner,
-        `${user.userName} 様より ${shop.shopName} へ ${amount} KFC入金がありました。\n残高 ${shopBalance}} KFC`,
+        `${user.userName} 様より ${shop.shopName} へ ${amount} KFC入金がありました。\n残高 ${shopBalance} KFC`,
       );
     }
     return '入金が完了しました。';
@@ -110,7 +110,7 @@ export class ShopService {
     );
     await this.neosService.sendMessage(
       shop.owner,
-      `${shop.shopName} から ${user.userName} 様へ ${amount} KFCの出金を行いました。\n残高 ${shopBalance}} KFC`,
+      `${shop.shopName} から ${user.userName} 様へ ${amount} KFCの出金を行いました。\n残高 ${shopBalance} KFC`,
     );
     return '出金が完了しました。';
   }
