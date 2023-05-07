@@ -1,14 +1,6 @@
 import { RealIP } from 'nestjs-real-ip';
 
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  Param,
-  Post,
-  Put,
-} from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
 import {
   ApiOperation,
   ApiParam,

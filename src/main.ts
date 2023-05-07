@@ -12,6 +12,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .addServer('https://bank.neos.love', 'Production server')
     .addServer('https://njbank-staging.hinasense.jp', 'Staging server')
+    .addServer('http://localhost:3000', 'LocalTest')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

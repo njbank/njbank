@@ -155,4 +155,23 @@ export class UsersService {
       });
     return '削除しました';
   }
+
+  async getUser(id: string) {
+    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
+      throw new InternalServerErrorException(e.message);
+    });
+    if (!user) {
+      throw new ForbiddenException(`${id}の口座はありません。`);
+    }
+    return user;
+  }
+
+  async checkIp(id: string, ip: string): Promise<boolean> {
+    const user = await this.getUser(id);
+    if (user.ipAddress === ip) {
+      return true;
+    } else {
+      throw new ForbiddenException(`IPチェックに失敗しました。`);
+    }
+  }
 }

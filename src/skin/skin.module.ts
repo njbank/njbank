@@ -7,7 +7,7 @@ import { SkinService } from './skin.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Skin])],
-  exports: [TypeOrmModule],
+  exports: [SkinService],
   controllers: [SkinController],
   providers: [SkinService],
 })

@@ -8,7 +8,7 @@ import { UsersService } from './users.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User]), NeosModule],
-  exports: [TypeOrmModule],
+  exports: [UsersService],
   controllers: [UsersController],
   providers: [UsersService],
 })

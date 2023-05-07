@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { NeosService } from '../neos/neos.service';
 import { User } from '../users/entities/user.entity';
+import { UsersService } from '../users/users.service';
 import { DepositKfcDto } from './dto/deposit-kfc.dto';
 import { TransferKfcDto } from './dto/transfer-kfc.dto';
 import { WithdrawKfcDto } from './dto/withdraw-kfc.dto';
@@ -18,10 +19,11 @@ export class KfcService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     private readonly neosService: NeosService,
+    private readonly usersService: UsersService,
   ) {}
 
   async checkKfc(id: string, ipAddress: string) {
-    await this.checkIp(id, ipAddress);
+    await this.usersService.checkIp(id, ipAddress);
     const user = await this.userRepository.findOneBy({ id }).catch((e) => {
       throw new InternalServerErrorException(e.message);
     });
@@ -33,7 +35,7 @@ export class KfcService {
 
   async depositKfc(depositKfcDto: DepositKfcDto, ipAddress: string) {
     const id = depositKfcDto.id;
-    await this.checkIp(id, ipAddress);
+    await this.usersService.checkIp(id, ipAddress);
     const user = await this.userRepository.findOneBy({ id }).catch((e) => {
       throw new InternalServerErrorException(e.message);
     });
@@ -56,7 +58,7 @@ export class KfcService {
 
   async withdrawKfc(withdrawKfcDto: WithdrawKfcDto, ipAddress: string) {
     const id = withdrawKfcDto.id;
-    await this.checkIp(id, ipAddress);
+    await this.usersService.checkIp(id, ipAddress);
     const user = await this.userRepository.findOneBy({ id }).catch((e) => {
       throw new InternalServerErrorException(e.message);
     });
@@ -84,7 +86,7 @@ export class KfcService {
   async transferKfc(transferKfcDto: TransferKfcDto, ipAddress: string) {
     const id = transferKfcDto.id;
     let toId = transferKfcDto.to;
-    await this.checkIp(id, ipAddress);
+    await this.usersService.checkIp(id, ipAddress);
     const user = await this.userRepository.findOneBy({ id }).catch((e) => {
       throw new InternalServerErrorException(e.message);
     });
@@ -147,17 +149,24 @@ export class KfcService {
     return user.amount - transferKfcDto.amount;
   }
 
-  async checkIp(id: string, ip: string): Promise<boolean> {
-    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
-    if (!user) {
-      return false;
+  async addKfc(user: User, amount: number) {
+    await this.userRepository
+      .update(user.id, { amount: user.amount + amount })
+      .catch((e) => {
+        throw new InternalServerErrorException(e.message);
+      });
+    return user.amount + amount;
+  }
+
+  async removeKfc(user: User, amount: number) {
+    if (user.amount < amount) {
+      throw new ForbiddenException('KFCが足りません');
     }
-    if (user.ipAddress === ip) {
-      return true;
-    } else {
-      throw new ForbiddenException(`IPチェックに失敗しました。`);
-    }
+    await this.userRepository
+      .update(user.id, { amount: user.amount - amount })
+      .catch((e) => {
+        throw new InternalServerErrorException(e.message);
+      });
+    return user.amount - amount;
   }
 }

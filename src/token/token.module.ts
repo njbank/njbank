@@ -15,7 +15,7 @@ import { TokenService } from './token.service';
     TypeOrmModule.forFeature([RankingBoard]),
     TypeOrmModule.forFeature([RankingEntries]),
   ],
-  exports: [TypeOrmModule],
+  exports: [TokenService],
   controllers: [TokenController],
   providers: [TokenService],
 })
