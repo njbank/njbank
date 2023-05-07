@@ -18,6 +18,8 @@ export const databaseEntities = [
   Skin,
 ];
 
+const migrationFilesDir = 'dist/database/migrations/*.js';
+
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
@@ -34,11 +36,12 @@ export const databaseEntities = [
         username: configService.get('POSTGRES_USER'),
         password: configService.get('POSTGRES_PASSWORD'),
         database: configService.get('POSTGRES_DB'),
+        entities: databaseEntities,
+        migrations: [migrationFilesDir],
+        synchronize: false,
         extra: {
           ssl: 'true',
         },
-        entities: databaseEntities,
-        synchronize: false,
       }),
     }),
   ],
