@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { RankingBoard } from '../ranking/entities/ranking-board.entity';
 import { RankingEntries } from '../ranking/entities/ranking-entries.entity';
+import { Shop } from '../shop/entities/shop.entity';
 import { Skin } from '../skin/entities/skin.entity';
 import { Token } from '../token/entities/token.entity';
 import { User } from '../users/entities/user.entity';
@@ -16,6 +17,7 @@ export const databaseEntities = [
   RankingBoard,
   RankingEntries,
   Skin,
+  Shop,
 ];
 
 const migrationFilesDir = 'dist/database/migrations/*.js';

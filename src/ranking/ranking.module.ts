@@ -11,7 +11,7 @@ import { RankingService } from './ranking.service';
     TypeOrmModule.forFeature([RankingBoard]),
     TypeOrmModule.forFeature([RankingEntries]),
   ],
-  exports: [TypeOrmModule],
+  exports: [RankingService],
   controllers: [RankingController],
   providers: [RankingService],
 })

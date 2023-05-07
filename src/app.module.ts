@@ -9,6 +9,7 @@ import { AuthMiddleware } from './middleware/auth/auth.middleware';
 import { GetToHeaderMiddleware } from './middleware/auth/get-to-header.middleware';
 import { NeosModule } from './neos/neos.modules';
 import { RankingModule } from './ranking/ranking.module';
+import { ShopModule } from './shop/shop.module';
 import { SkinModule } from './skin/skin.module';
 import { TokenModule } from './token/token.module';
 import { UsersModule } from './users/users.module';
@@ -23,6 +24,7 @@ import { UsersModule } from './users/users.module';
     NeosModule,
     RankingModule,
     SkinModule,
+    ShopModule,
   ],
   controllers: [AppController],
   providers: [AppService],
