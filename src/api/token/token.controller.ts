@@ -1,7 +1,6 @@
-import { RealIP } from 'nestjs-real-ip';
-
 import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { RealIP } from 'nestjs-real-ip';
 
 import { BuyTokenDto } from './dto/buy-token.dto';
 import { CreateTokenDto } from './dto/create-token.dto';

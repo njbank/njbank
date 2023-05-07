@@ -1,18 +1,18 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 
+import { KfcModule } from './api/kfc/kfc.module';
+import { RankingModule } from './api/ranking/ranking.module';
+import { ShopModule } from './api/shop/shop.module';
+import { SkinModule } from './api/skin/skin.module';
+import { TokenModule } from './api/token/token.module';
+import { UsersModule } from './api/users/users.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
 import { DatabaseModule } from './database/database.module';
-import { KfcModule } from './kfc/kfc.module';
 import { AuthMiddleware } from './middleware/auth/auth.middleware';
 import { GetToHeaderMiddleware } from './middleware/auth/get-to-header.middleware';
-import { NeosModule } from './neos/neos.modules';
-import { RankingModule } from './ranking/ranking.module';
-import { ShopModule } from './shop/shop.module';
-import { SkinModule } from './skin/skin.module';
-import { TokenModule } from './token/token.module';
-import { UsersModule } from './users/users.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { NeosModule } from './modules/neos/neos.modules';
 
 @Module({
   imports: [

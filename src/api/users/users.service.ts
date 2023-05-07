@@ -1,5 +1,3 @@
-import { Repository } from 'typeorm';
-
 import {
   ConflictException,
   ForbiddenException,
@@ -7,8 +5,10 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
-import { NeosService } from '../neos/neos.service';
+import { NeosService } from '../../modules/neos/neos.service';
+
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 

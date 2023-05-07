@@ -1,7 +1,6 @@
-import { HeaderAPIKeyStrategy } from 'passport-headerapikey';
-
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
+import { HeaderAPIKeyStrategy } from 'passport-headerapikey';
 
 import { AuthService } from './auth.service';
 

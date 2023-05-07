@@ -1,15 +1,15 @@
-import { Repository } from 'typeorm';
-
 import {
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
-import { NeosService } from '../neos/neos.service';
+import { NeosService } from '../../modules/neos/neos.service';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
+
 import { DepositKfcDto } from './dto/deposit-kfc.dto';
 import { TransferKfcDto } from './dto/transfer-kfc.dto';
 import { WithdrawKfcDto } from './dto/withdraw-kfc.dto';

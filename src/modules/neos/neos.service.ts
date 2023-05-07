@@ -1,8 +1,7 @@
 import 'dotenv/config';
 
-import { Neos } from 'neos-client/dist';
-
 import { Injectable } from '@nestjs/common';
+import { Neos } from 'neos-client/dist';
 
 @Injectable()
 export class NeosService {

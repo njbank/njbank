@@ -1,7 +1,6 @@
-import { string } from 'joi';
-
 import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { string } from 'joi';
 
 import { RegisterSkinDto } from './dto/register-skin.dto';
 import { SkinService } from './skin.service';

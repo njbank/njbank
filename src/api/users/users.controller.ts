@@ -1,5 +1,3 @@
-import { RealIP } from 'nestjs-real-ip';
-
 import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
 import {
   ApiOperation,
@@ -7,6 +5,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger/dist';
+import { RealIP } from 'nestjs-real-ip';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';

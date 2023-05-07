@@ -1,7 +1,6 @@
-import { Repository } from 'typeorm';
-
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 import { RegisterSkinDto } from './dto/register-skin.dto';
 import { Skin } from './entities/skin.entity';

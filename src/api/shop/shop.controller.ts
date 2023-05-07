@@ -1,9 +1,9 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+import { RecordedSalesDto } from './dto/recorded-sales.dto';
 import { ShopTransactionDto } from './dto/shop-transaction.dto';
 import { ShopWithdrawDto } from './dto/shop-withdraw.dto';
-import { RecordedSalesDto } from './dto/shop-withdraw.dto copy';
 import { ShopService } from './shop.service';
 
 @Controller('shop')

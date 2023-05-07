@@ -1,11 +1,10 @@
-import { Repository } from 'typeorm';
-
 import {
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 import { RankingBoard } from './entities/ranking-board.entity';
 import { RankingEntries } from './entities/ranking-entries.entity';

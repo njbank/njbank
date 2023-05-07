@@ -1,16 +1,16 @@
-import { Repository } from 'typeorm';
-
 import {
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
+import { NeosService } from '../../modules/neos/neos.service';
 import { KfcService } from '../kfc/kfc.service';
-import { NeosService } from '../neos/neos.service';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
+
 import { Shop } from './entities/shop.entity';
 
 @Injectable()
