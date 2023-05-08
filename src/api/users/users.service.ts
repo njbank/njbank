@@ -55,7 +55,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new ForbiddenException(`${user}は見つかりませんでした。`);
+      throw new ForbiddenException(`${id}は見つかりませんでした。`);
     }
 
     return user.userName;
