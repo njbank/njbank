@@ -333,7 +333,7 @@ export class TokenService {
       user.tokens[token.name] += amount;
       await this.userRepository
         .update(user.id, {
-          tokens: user.tokens[token.name],
+          tokens: user.tokens,
         })
         .catch((e) => {
           throw new InternalServerErrorException(e.message);
@@ -342,7 +342,7 @@ export class TokenService {
       user.tokens[token.name] = amount;
       await this.userRepository
         .update(user.id, {
-          tokens: user.tokens[token.name],
+          tokens: user.tokens,
         })
         .catch((e) => {
           throw new InternalServerErrorException(e.message);
