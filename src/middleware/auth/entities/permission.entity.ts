@@ -6,4 +6,6 @@ export class Permission {
   id: string;
   @Column('jsonb')
   allowedPaths: string[];
+  @Column('jsonb', { default: [] })
+  placeHolder: string[];
 }

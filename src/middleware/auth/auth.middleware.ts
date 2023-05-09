@@ -48,7 +48,25 @@ export class AuthMiddleware implements NestMiddleware {
         return false;
       }
       for (const allowedPaths of permission.allowedPaths) {
-        const regExp = new RegExp(allowedPaths);
+        let regString = allowedPaths;
+        for (const placeHolder of permission.placeHolder) {
+          if (apiKey.paramsWhiteList[placeHolder]) {
+            const paramRegex = `(${apiKey.paramsWhiteList[placeHolder].join(
+              '|',
+            )})`;
+            regString = regString.replace(`{${placeHolder}}`, paramRegex);
+          } else {
+            regString.replace(`{${placeHolder}}`, '[0-9A-Za-z]+');
+          }
+        }
+        for (const [index, item] of Object.entries(apiKey.paramsWhiteList)) {
+          if (req.body[index]) {
+            if (!item.includes(req.body[index])) {
+              return false;
+            }
+          }
+        }
+        const regExp = new RegExp(regString);
         if (regExp.exec(req.baseUrl)) {
           return true;
         }
