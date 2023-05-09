@@ -42,9 +42,9 @@ export class TokenService {
   }
 
   async create(createTokenDto: CreateTokenDto) {
-    const token = await this.getToken(this.create.name);
+    const token = await this.getToken(createTokenDto.name);
     if (token) {
-      throw new ConflictException(`既に${token}は存在します。`);
+      throw new ConflictException(`既に${token.name}は存在します。`);
     }
     await this.tokenRepository
       .save({
@@ -61,9 +61,9 @@ export class TokenService {
   }
 
   async updateToken(updateTokenDto: UpdateTokenDto, name: string) {
-    const token = await this.getToken(this.create.name);
+    const token = await this.getToken(name);
     if (!token) {
-      throw new ForbiddenException(`${token}は存在しません。`);
+      throw new ForbiddenException(`${token.name}は存在しません。`);
     }
     await this.tokenRepository
       .update(name, {
@@ -75,7 +75,7 @@ export class TokenService {
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
-    return `${updateTokenDto}を更新しました。`;
+    return `${name}を更新しました。`;
   }
 
   async checkToken(id: string, name: string, ipAddress: string) {
