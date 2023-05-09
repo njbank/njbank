@@ -10,6 +10,8 @@ import { Shop } from '../api/shop/entities/shop.entity';
 import { Skin } from '../api/skin/entities/skin.entity';
 import { Token } from '../api/token/entities/token.entity';
 import { User } from '../api/users/entities/user.entity';
+import { ApiKey } from '../middleware/auth/entities/api-key.entity';
+import { Permission } from '../middleware/auth/entities/permission.entity';
 
 export const databaseEntities = [
   User,
@@ -18,6 +20,8 @@ export const databaseEntities = [
   RankingEntries,
   Skin,
   Shop,
+  ApiKey,
+  Permission,
 ];
 
 const migrationFilesDir = 'dist/database/migrations/*.js';
