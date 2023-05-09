@@ -191,6 +191,9 @@ export class ShopService {
   }
 
   async addKfc(shop: Shop, amount: number) {
+    if (shop.amount === -1) {
+      return shop;
+    }
     await this.shopRepository
       .update(shop.id, { amount: shop.amount + amount })
       .catch((e) => {
@@ -201,6 +204,9 @@ export class ShopService {
   }
 
   async removeKfc(shop: Shop, amount: number) {
+    if (shop.amount === -1) {
+      return shop;
+    }
     if (shop.amount < amount) {
       throw new ForbiddenException('KFCが足りません');
     }
