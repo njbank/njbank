@@ -1,7 +1,4 @@
-import {
-  ApiProperty,
-  ApiPropertyOptional,
-} from '@nestjs/swagger/dist/decorators';
+import { ApiProperty } from '@nestjs/swagger/dist/decorators';
 
 enum Dest {
   bank = 'bank',
@@ -9,16 +6,15 @@ enum Dest {
 }
 
 export class TransferKfcDto {
-  @ApiProperty({ example: 'U-hinanoaira', description: 'NeosユーザーID' })
+  @ApiProperty({ example: 'U-hinanoaira', description: '送り元NeosユーザーID' })
   id: string;
 
-  @ApiProperty({ example: 'U-kazu', description: 'NeosユーザーID' })
+  @ApiProperty({ example: 'U-kazu', description: '送り先NeosユーザーID' })
   to: string;
 
   @ApiProperty({ example: 100, description: '金額' })
   amount: number;
 
-  @ApiProperty({ enum: Dest, description: '送信先' })
-  @ApiPropertyOptional()
-  dest?: Dest;
+  @ApiProperty({ enum: Dest, description: '送り先' })
+  dest: Dest;
 }

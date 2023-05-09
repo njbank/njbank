@@ -3,7 +3,7 @@ import {
   ApiPropertyOptional,
 } from '@nestjs/swagger/dist/decorators';
 
-export class WithdrawTokenDto {
+export class TransactionTokenDto {
   @ApiProperty({ example: 'U-hinanoaira', description: 'NeosユーザーID' })
   id: string;
 

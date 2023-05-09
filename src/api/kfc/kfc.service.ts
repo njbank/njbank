@@ -10,9 +10,8 @@ import { NeosService } from '../../modules/neos/neos.service';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 
-import { DepositKfcDto } from './dto/deposit-kfc.dto';
+import { TransactionKfcDto } from './dto/transaction-kfc.dto';
 import { TransferKfcDto } from './dto/transfer-kfc.dto';
-import { WithdrawKfcDto } from './dto/withdraw-kfc.dto';
 
 @Injectable()
 export class KfcService {
@@ -29,46 +28,46 @@ export class KfcService {
   }
 
   async depositKfc(
-    depositKfcDto: DepositKfcDto,
+    transactionKfcDto: TransactionKfcDto,
     ipAddress: string,
   ): Promise<string> {
-    await this.usersService.checkIp(depositKfcDto.id, ipAddress);
-    const user = await this.usersService.getUser(depositKfcDto.id);
-    const userBalance = await this.addKfc(user, depositKfcDto.amount);
+    await this.usersService.checkIp(transactionKfcDto.id, ipAddress);
+    let user = await this.usersService.getUser(transactionKfcDto.id);
+    user = await this.addKfc(user, transactionKfcDto.amount);
     await this.neosService.sendMessage(
-      depositKfcDto.id,
-      `ご利用ありがとうございます。\n入金 ${depositKfcDto.amount}KFC 残高 ${userBalance} KFC`,
+      transactionKfcDto.id,
+      `ご利用ありがとうございます。\n入金 ${transactionKfcDto.amount}KFC 残高 ${user.amount} KFC`,
     );
-    return `${userBalance}`;
+    return `${user.amount}`;
   }
 
   async withdrawKfc(
-    withdrawKfcDto: WithdrawKfcDto,
+    transactionKfcDto: TransactionKfcDto,
     ipAddress: string,
   ): Promise<string> {
-    const id = withdrawKfcDto.id;
+    const id = transactionKfcDto.id;
     await this.usersService.checkIp(id, ipAddress);
-    const user = await this.usersService.getUser(withdrawKfcDto.id);
-    if (user.amount < withdrawKfcDto.amount) {
+    let user = await this.usersService.getUser(transactionKfcDto.id);
+    if (user.amount < transactionKfcDto.amount) {
       throw new ForbiddenException(`お金が足りません。`);
     }
     await this.neosService.sendKfc(
       id,
-      withdrawKfcDto.amount,
+      transactionKfcDto.amount,
       `ご利用ありがとうございます。\n出金 残高 ${
-        user.amount - withdrawKfcDto.amount
+        user.amount - transactionKfcDto.amount
       } KFC`,
     );
-    const userBalance = await this.removeKfc(user, withdrawKfcDto.amount);
-    return `${userBalance}`;
+    user = await this.removeKfc(user, transactionKfcDto.amount);
+    return `${user.amount}`;
   }
 
   async transferKfc(
     transferKfcDto: TransferKfcDto,
     ipAddress: string,
   ): Promise<string> {
-    const fromUser = await this.usersService.getUser(transferKfcDto.id);
-    const toUser = await this.usersService.getUser(
+    let fromUser = await this.usersService.getUser(transferKfcDto.id);
+    let toUser = await this.usersService.getUser(
       transferKfcDto.to,
       transferKfcDto.to.startsWith('U-'),
     );
@@ -83,21 +82,18 @@ export class KfcService {
         `${fromUser.userName} 様より送金がありました。`,
       );
     } else {
-      const toUserBalance = await this.addKfc(toUser, transferKfcDto.amount);
+      toUser = await this.addKfc(toUser, transferKfcDto.amount);
       await this.neosService.sendMessage(
         toUser.id,
-        `ご利用ありがとうございます。\n${fromUser.userName} 様より口座へ ${transferKfcDto.amount} KFC振り込まれました。\n残高 ${toUserBalance} KFC`,
+        `ご利用ありがとうございます。\n${fromUser.userName} 様より口座へ ${transferKfcDto.amount} KFC振り込まれました。\n残高 ${toUser.amount} KFC`,
       );
     }
-    const fromUserBlance = await this.removeKfc(
-      fromUser,
-      transferKfcDto.amount,
-    );
+    fromUser = await this.removeKfc(fromUser, transferKfcDto.amount);
     await this.neosService.sendMessage(
       fromUser.id,
-      `ご利用ありがとうございます。\n${toUser.userName} 様へ ${transferKfcDto.amount} KFC振り込みました。\n残高 ${fromUserBlance} KFC`,
+      `ご利用ありがとうございます。\n${toUser.userName} 様へ ${transferKfcDto.amount} KFC振り込みました。\n残高 ${fromUser.amount} KFC`,
     );
-    return `${fromUserBlance}`;
+    return `送金が完了しました。`;
   }
 
   async addKfc(user: User, amount: number) {
@@ -106,7 +102,8 @@ export class KfcService {
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
-    return user.amount + amount;
+    user.amount += amount;
+    return user;
   }
 
   async removeKfc(user: User, amount: number) {
@@ -118,6 +115,7 @@ export class KfcService {
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
-    return user.amount - amount;
+    user.amount -= amount;
+    return user;
   }
 }

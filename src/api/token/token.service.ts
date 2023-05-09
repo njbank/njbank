@@ -10,16 +10,17 @@ import * as timezone from 'dayjs/plugin/timezone';
 import * as utc from 'dayjs/plugin/utc';
 import { Any, Repository } from 'typeorm';
 
+import { KfcService } from '../kfc/kfc.service';
 import { RankingBoard } from '../ranking/entities/ranking-board.entity';
 import { RankingEntries } from '../ranking/entities/ranking-entries.entity';
 import { User } from '../users/entities/user.entity';
+import { UsersService } from '../users/users.service';
 
 import { BuyTokenDto } from './dto/buy-token.dto';
 import { CreateTokenDto } from './dto/create-token.dto';
-import { DepositTokenDto } from './dto/deposit-token.dto';
+import { TransactionTokenDto } from './dto/transaction-token.dto';
 import { TransferTokenDto } from './dto/transfer-token.dto';
 import { UpdateTokenDto } from './dto/update-token.dto';
-import { WithdrawTokenDto } from './dto/withdraw-token.dto';
 import { RankingType } from './entities/ranking-type.entity';
 import { Token } from './entities/token.entity';
 
@@ -32,6 +33,8 @@ export class TokenService {
     private rankingBoardRepository: Repository<RankingBoard>,
     @InjectRepository(RankingEntries)
     private rankingEntriesRepository: Repository<RankingEntries>,
+    private readonly usersService: UsersService,
+    private readonly kfcService: KfcService,
   ) {
     dayjs.extend(utc);
     dayjs.extend(timezone);
@@ -39,10 +42,7 @@ export class TokenService {
   }
 
   async create(createTokenDto: CreateTokenDto) {
-    const name = createTokenDto.name;
-    const token = await this.tokenRepository.findOneBy({ name }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
+    const token = await this.getToken(this.create.name);
     if (token) {
       throw new ConflictException(`既に${token}は存在します。`);
     }
@@ -57,13 +57,11 @@ export class TokenService {
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
-    return `${name}を作成しました。`;
+    return `${createTokenDto.name}を作成しました。`;
   }
 
   async updateToken(updateTokenDto: UpdateTokenDto, name: string) {
-    const token = await this.tokenRepository.findOneBy({ name }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
+    const token = await this.getToken(this.create.name);
     if (!token) {
       throw new ForbiddenException(`${token}は存在しません。`);
     }
@@ -77,25 +75,17 @@ export class TokenService {
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
-    return '更新しました。';
+    return `${updateTokenDto}を更新しました。`;
   }
 
-  async checkToken(Id: string, name: string, ipAddress: string) {
-    const id = Id;
-    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
-    if (!user) {
-      throw new ForbiddenException(`${id}の口座は存在しません。`);
-    }
-    const token = await this.tokenRepository.findOneBy({ name }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
+  async checkToken(id: string, name: string, ipAddress: string) {
+    const user = await this.usersService.getUser(id);
+    const token = await this.getToken(name);
     if (!token) {
       throw new ForbiddenException(`${name}は存在しません。`);
     }
     if (token.checkingIp) {
-      await this.checkIp(id, ipAddress);
+      await this.usersService.checkIp(id, ipAddress);
     }
     if (!user.tokens[name]) {
       return 0;
@@ -104,88 +94,50 @@ export class TokenService {
   }
 
   async depositToken(
-    depositTokenDto: DepositTokenDto,
+    transactionTokenDto: TransactionTokenDto,
     name: string,
     ipAddress: string,
   ) {
-    const id = depositTokenDto.id;
-    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
-    if (!user) {
-      throw new ForbiddenException(`${id}の口座は存在しません。`);
-    }
-    const token = await this.tokenRepository.findOneBy({ name }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
+    let user = await this.usersService.getUser(transactionTokenDto.id);
+    const token = await this.getToken(name);
     if (!token) {
       throw new ForbiddenException(`${name}は存在しません。`);
     }
     if (token.checkingIp) {
-      await this.checkIp(id, ipAddress);
+      await this.usersService.checkIp(transactionTokenDto.id, ipAddress);
     }
-    if (user.tokens[name]) {
-      user.tokens[name] += depositTokenDto.amount;
-    } else {
-      user.tokens[name] = depositTokenDto.amount;
-    }
-    await this.userRepository
-      .update(id, {
-        tokens: user.tokens,
-      })
-      .catch((e) => {
-        throw new InternalServerErrorException(e.message);
-      });
-    if (depositTokenDto.isRanking) {
-      await this.rankingUpdate(
+    user = await this.addToken(user, token, transactionTokenDto.amount);
+    if (transactionTokenDto.isRanking) {
+      this.rankingUpdate(
         token,
         user,
-        depositTokenDto.amount,
-        depositTokenDto.tags,
+        transactionTokenDto.amount,
+        transactionTokenDto.tags,
       );
     }
     return user.tokens[name];
   }
 
   async withdrawToken(
-    withdrawTokenDto: WithdrawTokenDto,
+    transactionTokenDto: TransactionTokenDto,
     name: string,
     ipAddress: string,
   ) {
-    const id = withdrawTokenDto.id;
-    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
-    if (!user) {
-      throw new ForbiddenException(`${id}の口座は存在しません。`);
-    }
-    const token = await this.tokenRepository.findOneBy({ name }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
+    let user = await this.usersService.getUser(transactionTokenDto.id);
+    const token = await this.getToken(name);
     if (!token) {
       throw new ForbiddenException(`${name}は存在しません。`);
     }
     if (token.checkingIp) {
-      await this.checkIp(id, ipAddress);
+      await this.usersService.checkIp(transactionTokenDto.id, ipAddress);
     }
-    if (user.tokens[name] && user.tokens[name] >= withdrawTokenDto.amount) {
-      user.tokens[name] -= withdrawTokenDto.amount;
-    } else {
-      throw new ForbiddenException(`${name}が足りません。`);
-    }
-    await this.userRepository
-      .update(id, {
-        tokens: user.tokens,
-      })
-      .catch((e) => {
-        throw new InternalServerErrorException(e.message);
-      });
-    if (withdrawTokenDto.isRanking) {
+    user = await this.removeToken(user, token, transactionTokenDto.amount);
+    if (transactionTokenDto.isRanking) {
       this.rankingUpdate(
         token,
         user,
-        withdrawTokenDto.amount * -1,
-        withdrawTokenDto.tags,
+        -transactionTokenDto.amount,
+        transactionTokenDto.tags,
       );
     }
     return user.tokens[name];
@@ -203,56 +155,49 @@ export class TokenService {
   }
 
   async buyToken(buyTokenDto: BuyTokenDto, name: string, ipAddress: string) {
-    const id = buyTokenDto.id;
-    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
-    if (!user) {
-      throw new ForbiddenException(`${id}の口座は存在しません。`);
-    }
-    const token = await this.tokenRepository.findOneBy({ name }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
+    let user = await this.usersService.getUser(buyTokenDto.id);
+    const token = await this.getToken(name);
     if (!token) {
       throw new ForbiddenException(`${name}は存在しません。`);
     }
-    await this.checkIp(id, ipAddress);
-    if (user.amount < buyTokenDto.amount * token.rate) {
-      throw new ForbiddenException(`KFCが足りません。`);
-    }
-    if (user.tokens[name]) {
-      user.tokens[name] += buyTokenDto.amount;
-    } else {
-      user.tokens[name] = buyTokenDto.amount;
-    }
-    await this.userRepository
-      .update(id, {
-        tokens: user.tokens,
-        amount: user.amount - buyTokenDto.amount * token.rate,
-      })
-      .catch((e) => {
-        throw new InternalServerErrorException(e.message);
-      });
+    await this.usersService.checkIp(buyTokenDto.id, ipAddress);
+    user = await this.kfcService.removeKfc(user, buyTokenDto.amount);
+    user = await this.addToken(user, token, buyTokenDto.amount);
     return user.tokens[name];
   }
 
-  private async checkIp(id: string, ip: string): Promise<boolean> {
-    const user = await this.userRepository
-      .findOneBy({ id })
-      .catch((e) => {
-        throw new InternalServerErrorException(e.message);
-      })
-      .catch((e) => {
-        throw new InternalServerErrorException(e.message);
-      });
-    if (!user) {
-      return false;
+  async buyAndWithdrawToken(
+    transactionTokenDto: TransactionTokenDto,
+    name: string,
+    ipAddress: string,
+  ) {
+    let user = await this.usersService.getUser(transactionTokenDto.id);
+    const token = await this.getToken(name);
+    if (!token) {
+      throw new ForbiddenException(`${name}は存在しません。`);
     }
-    if (user.ipAddress === ip) {
-      return true;
+    if (
+      user.tokens[token.name] ||
+      user.tokens[token.name] > transactionTokenDto.amount
+    ) {
+      if (token.checkingIp) {
+        await this.usersService.checkIp(transactionTokenDto.id, ipAddress);
+      }
+      user = await this.removeToken(user, token, transactionTokenDto.amount);
     } else {
-      throw new ForbiddenException(`IPチェックに失敗しました。`);
+      await this.usersService.checkIp(transactionTokenDto.id, ipAddress);
+      user = await this.kfcService.removeKfc(user, transactionTokenDto.amount);
+      user = await this.addToken(user, token, transactionTokenDto.amount);
     }
+    if (transactionTokenDto.isRanking) {
+      this.rankingUpdate(
+        token,
+        user,
+        -transactionTokenDto.amount,
+        transactionTokenDto.tags,
+      );
+    }
+    return user.tokens[name];
   }
 
   private async rankingUpdate(
@@ -374,5 +319,54 @@ export class TokenService {
         }
       }
     }
+  }
+
+  async getToken(name: string) {
+    const token = await this.tokenRepository.findOneBy({ name }).catch((e) => {
+      throw new InternalServerErrorException(e.message);
+    });
+    return token;
+  }
+
+  async addToken(user: User, token: Token, amount: number) {
+    if (user.tokens[token.name]) {
+      user.tokens[token.name] += amount;
+      await this.userRepository
+        .update(user.id, {
+          tokens: user.tokens[token.name],
+        })
+        .catch((e) => {
+          throw new InternalServerErrorException(e.message);
+        });
+    } else {
+      user.tokens[token.name] = amount;
+      await this.userRepository
+        .update(user.id, {
+          tokens: user.tokens[token.name],
+        })
+        .catch((e) => {
+          throw new InternalServerErrorException(e.message);
+        });
+    }
+    return user;
+  }
+
+  async removeToken(user: User, token: Token, amount: number) {
+    if (user.tokens[token.name]) {
+      if (user.tokens[token.name] < amount) {
+        throw new ForbiddenException(`トークンが足りません。`);
+      }
+      user.tokens[token.name] -= amount;
+      await this.userRepository
+        .update(user.id, {
+          tokens: user.tokens[token.name],
+        })
+        .catch((e) => {
+          throw new InternalServerErrorException(e.message);
+        });
+    } else {
+      throw new ForbiddenException(`トークンを持っていません。`);
+    }
+    return user;
   }
 }

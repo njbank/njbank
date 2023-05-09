@@ -10,6 +10,17 @@ export class ShopTransactionDto {
   @ApiProperty({ example: 100, description: '金額' })
   amount: number;
 
-  @ApiProperty({ example: true, description: 'ショップに通知を行う' })
+  @ApiProperty({
+    description: 'ショップに通知を行う',
+    default: false,
+    required: false,
+  })
   shopAnnounce: boolean;
+
+  @ApiProperty({
+    description: 'ユーザーに通知を行う',
+    default: false,
+    required: false,
+  })
+  userAnnounce: boolean;
 }

@@ -33,19 +33,22 @@ export class ShopService {
     shopName: string,
     amount: number,
     shopAnnounce = true,
+    userAnnounce = true,
   ) {
-    const user = await this.usersService.getUser(id);
-    const shop = await this.getShop(shopName);
-    const userBalance = await this.kfcService.removeKfc(user, amount);
-    const shopBalance = await this.addKfc(shop, amount);
-    await this.neosService.sendMessage(
-      user.id,
-      `${shop.shopName} に ${amount} KFC支払いました。\n残高 ${userBalance} KFC`,
-    );
+    let user = await this.usersService.getUser(id);
+    let shop = await this.getShop(shopName);
+    user = await this.kfcService.removeKfc(user, amount);
+    shop = await this.addKfc(shop, amount);
+    if (userAnnounce) {
+      await this.neosService.sendMessage(
+        user.id,
+        `${shop.shopName} に ${amount} KFC支払いました。\n残高 ${user.amount} KFC`,
+      );
+    }
     if (shopAnnounce) {
       await this.neosService.sendMessage(
         shop.owner,
-        `${user.userName} 様より ${shop.shopName} へ ${amount} KFCの支払いがありました。\n残高 ${shopBalance} KFC`,
+        `${user.userName} 様より ${shop.shopName} へ ${amount} KFCの支払いがありました。\n残高 ${shop.amount} KFC`,
       );
     }
     return '支払いが完了しました。';
@@ -56,19 +59,22 @@ export class ShopService {
     shopName: string,
     amount: number,
     shopAnnounce = true,
+    userAnnounce = true,
   ) {
-    const user = await this.usersService.getUser(id);
-    const shop = await this.getShop(shopName);
-    const shopBalance = await this.removeKfc(shop, amount);
-    const userBalance = await this.kfcService.addKfc(user, amount);
-    await this.neosService.sendMessage(
-      user.id,
-      `${shop.shopName} から ${amount} KFC送金されました。\n残高 ${userBalance} KFC`,
-    );
+    let user = await this.usersService.getUser(id);
+    let shop = await this.getShop(shopName);
+    shop = await this.removeKfc(shop, amount);
+    user = await this.kfcService.addKfc(user, amount);
+    if (userAnnounce) {
+      await this.neosService.sendMessage(
+        user.id,
+        `${shop.shopName} から ${amount} KFC送金されました。\n残高 ${user.amount} KFC`,
+      );
+    }
     if (shopAnnounce) {
       await this.neosService.sendMessage(
         shop.owner,
-        `${shop.shopName} から ${user.userName} 様へ ${amount} KFC支払いました。\n残高 ${shopBalance} KFC`,
+        `${shop.shopName} から ${user.userName} 様へ ${amount} KFC支払いました。\n残高 ${shop.amount} KFC`,
       );
     }
     return '支払いが完了しました。';
@@ -79,18 +85,21 @@ export class ShopService {
     shopName: string,
     amount: number,
     shopAnnounce = true,
+    userAnnounce = true,
   ) {
     const user = await this.usersService.getUser(id);
-    const shop = await this.getShop(shopName);
-    const shopBalance = await this.addKfc(shop, amount);
-    await this.neosService.sendMessage(
-      user.id,
-      `${shop.shopName} に ${amount} KFC入金しました。`,
-    );
+    let shop = await this.getShop(shopName);
+    shop = await this.addKfc(shop, amount);
+    if (userAnnounce) {
+      await this.neosService.sendMessage(
+        user.id,
+        `${shop.shopName} に ${amount} KFC入金しました。`,
+      );
+    }
     if (shopAnnounce) {
       await this.neosService.sendMessage(
         shop.owner,
-        `${user.userName} 様より ${shop.shopName} へ ${amount} KFC入金がありました。\n残高 ${shopBalance} KFC`,
+        `${user.userName} 様より ${shop.shopName} へ ${amount} KFC入金がありました。\n残高 ${shop.amount} KFC`,
       );
     }
     return '入金が完了しました。';
@@ -98,8 +107,7 @@ export class ShopService {
 
   async withdraw(id: string, shopName: string, amount: number) {
     const user = await this.usersService.getUser(id);
-    const shop = await this.getShop(shopName);
-    const shopBalance = await this.removeKfc(shop, amount);
+    let shop = await this.getShop(shopName);
     if (shop.amount < amount) {
       throw new ForbiddenException('KFCが足りません');
     }
@@ -108,9 +116,10 @@ export class ShopService {
       amount,
       `${shop.shopName} から ${amount} KFCの出金を行いました。`,
     );
+    shop = await this.removeKfc(shop, amount);
     await this.neosService.sendMessage(
       shop.owner,
-      `${shop.shopName} から ${user.userName} 様へ ${amount} KFCの出金を行いました。\n残高 ${shopBalance} KFC`,
+      `${shop.shopName} から ${user.userName} 様へ ${amount} KFCの出金を行いました。\n残高 ${shop.amount} KFC`,
     );
     return '出金が完了しました。';
   }
@@ -187,7 +196,8 @@ export class ShopService {
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
-    return shop.amount + amount;
+    shop.amount += amount;
+    return shop;
   }
 
   async removeKfc(shop: Shop, amount: number) {
@@ -199,6 +209,7 @@ export class ShopService {
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
-    return shop.amount - amount;
+    shop.amount -= amount;
+    return shop;
   }
 }

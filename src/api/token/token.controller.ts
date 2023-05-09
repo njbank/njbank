@@ -4,10 +4,9 @@ import { RealIP } from 'nestjs-real-ip';
 
 import { BuyTokenDto } from './dto/buy-token.dto';
 import { CreateTokenDto } from './dto/create-token.dto';
-import { DepositTokenDto } from './dto/deposit-token.dto';
+import { TransactionTokenDto } from './dto/transaction-token.dto';
 import { TransferTokenDto } from './dto/transfer-token.dto';
 import { UpdateTokenDto } from './dto/update-token.dto';
-import { WithdrawTokenDto } from './dto/withdraw-token.dto';
 import { TokenService } from './token.service';
 
 @Controller('token')
@@ -73,11 +72,11 @@ export class TokenController {
   })
   async deposit(
     @Param('token') token: string,
-    @Body() depositTokenDto: DepositTokenDto,
+    @Body() transactionTokenDto: TransactionTokenDto,
     @RealIP() ipAddress: string,
   ) {
     return await this.tokenService.depositToken(
-      depositTokenDto,
+      transactionTokenDto,
       token,
       ipAddress,
     );
@@ -92,11 +91,11 @@ export class TokenController {
   })
   async withdraw(
     @Param('token') token: string,
-    @Body() withdrawToken: WithdrawTokenDto,
+    @Body() transactionTokenDto: TransactionTokenDto,
     @RealIP() ipAddress: string,
   ) {
     return await this.tokenService.withdrawToken(
-      withdrawToken,
+      transactionTokenDto,
       token,
       ipAddress,
     );
@@ -134,5 +133,24 @@ export class TokenController {
     @RealIP() ipAddress: string,
   ) {
     return await this.tokenService.buyToken(buyTokenDto, token, ipAddress);
+  }
+
+  @Post(':token/buy-and-withdraw')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'トークンを購入する' })
+  @ApiResponse({
+    status: 200,
+    description: '処理が正常に完了した',
+  })
+  async buyAndWithdraw(
+    @Param('token') token: string,
+    @Body() transactionTokenDto: TransactionTokenDto,
+    @RealIP() ipAddress: string,
+  ) {
+    return await this.tokenService.buyToken(
+      transactionTokenDto,
+      token,
+      ipAddress,
+    );
   }
 }

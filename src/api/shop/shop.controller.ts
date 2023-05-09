@@ -24,6 +24,7 @@ export class ShopController {
       shopTransactionDto.shopName,
       shopTransactionDto.amount,
       shopTransactionDto.shopAnnounce,
+      shopTransactionDto.userAnnounce,
     );
   }
 
@@ -40,6 +41,7 @@ export class ShopController {
       shopTransactionDto.shopName,
       shopTransactionDto.amount,
       shopTransactionDto.shopAnnounce,
+      shopTransactionDto.userAnnounce,
     );
   }
 
@@ -56,6 +58,7 @@ export class ShopController {
       shopTransactionDto.shopName,
       shopTransactionDto.amount,
       shopTransactionDto.shopAnnounce,
+      shopTransactionDto.userAnnounce,
     );
   }
 

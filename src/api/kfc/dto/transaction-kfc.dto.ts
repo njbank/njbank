@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger/dist/decorators';
 
-export class WithdrawKfcDto {
+export class TransactionKfcDto {
   @ApiProperty({ example: 'U-hinanoaira', description: 'NeosユーザーID' })
   id: string;
 

@@ -7,9 +7,8 @@ import {
 } from '@nestjs/swagger/dist';
 import { RealIP } from 'nestjs-real-ip';
 
-import { DepositKfcDto } from './dto/deposit-kfc.dto';
+import { TransactionKfcDto } from './dto/transaction-kfc.dto';
 import { TransferKfcDto } from './dto/transfer-kfc.dto';
-import { WithdrawKfcDto } from './dto/withdraw-kfc.dto';
 import { KfcService } from './kfc.service';
 
 @Controller('kfc')
@@ -41,10 +40,10 @@ export class KfcController {
     description: '処理が正常に完了した',
   })
   async deposit(
-    @Body() depositKefDto: DepositKfcDto,
+    @Body() transactionKfcDto: TransactionKfcDto,
     @RealIP() ipAddress: string,
   ) {
-    return await this.kfcService.depositKfc(depositKefDto, ipAddress);
+    return await this.kfcService.depositKfc(transactionKfcDto, ipAddress);
   }
 
   @Post('withdraw')
@@ -55,10 +54,10 @@ export class KfcController {
     description: '処理が正常に完了した',
   })
   async withdraw(
-    @Body() withdrawKfcDto: WithdrawKfcDto,
+    @Body() transactionKfcDto: TransactionKfcDto,
     @RealIP() ipAddress: string,
   ) {
-    return await this.kfcService.withdrawKfc(withdrawKfcDto, ipAddress);
+    return await this.kfcService.withdrawKfc(transactionKfcDto, ipAddress);
   }
 
   @Post('transfer')
