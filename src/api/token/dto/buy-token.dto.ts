@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger/dist/decorators';
-import { IsInt, IsNotEmpty, IsString } from 'class-validator';
+import { IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
 
 export class BuyTokenDto {
   @IsNotEmpty()
@@ -9,6 +9,7 @@ export class BuyTokenDto {
 
   @IsNotEmpty()
   @IsInt()
+  @Min(0)
   @ApiProperty({ example: 100, description: '金額' })
   amount: number;
 }
