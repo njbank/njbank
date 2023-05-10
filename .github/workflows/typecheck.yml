@@ -6,6 +6,11 @@ on:
       - main
   pull_request:
 
+permissions:
+  checks: write
+  contents: read
+  pull-requests: read
+
 jobs:
   tsc:
     runs-on: ubuntu-latest
