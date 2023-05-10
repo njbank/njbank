@@ -13,6 +13,7 @@ import { Any, Repository } from 'typeorm';
 import { KfcService } from '../kfc/kfc.service';
 import { RankingBoard } from '../ranking/entities/ranking-board.entity';
 import { RankingEntries } from '../ranking/entities/ranking-entries.entity';
+import { ShopService } from '../shop/shop.service';
 import { Role } from '../users/entities/role.entity';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
@@ -22,6 +23,7 @@ import { CreateTokenDto } from './dto/create-token.dto';
 import { TransactionTokenDto } from './dto/transaction-token.dto';
 import { TransferTokenDto } from './dto/transfer-token.dto';
 import { UpdateTokenDto } from './dto/update-token.dto';
+import { OperationType } from './entities/operation-type.entity';
 import { RankingType } from './entities/ranking-type.entity';
 import { Token } from './entities/token.entity';
 
@@ -36,6 +38,7 @@ export class TokenService {
     private rankingEntriesRepository: Repository<RankingEntries>,
     private readonly usersService: UsersService,
     private readonly kfcService: KfcService,
+    private readonly shopService: ShopService,
   ) {
     dayjs.extend(utc);
     dayjs.extend(timezone);
@@ -172,8 +175,18 @@ export class TokenService {
       throw new ForbiddenException(`${name}は存在しません。`);
     }
     await this.usersService.checkIp(buyTokenDto.id, ipAddress);
-    user = await this.kfcService.removeKfc(user, buyTokenDto.amount);
+    user = await this.kfcService.removeKfc(
+      user,
+      buyTokenDto.amount * token.rate,
+    );
     user = await this.addToken(user, token, buyTokenDto.amount);
+    if (token.operationType === OperationType.user) {
+      const operator = await this.usersService.getUser(token.operator);
+      await this.kfcService.addKfc(operator, buyTokenDto.amount * token.rate);
+    } else if (token.operationType === OperationType.shop) {
+      const operator = await this.shopService.getShop(token.operator);
+      await this.shopService.addKfc(operator, buyTokenDto.amount * token.rate);
+    }
     return user.tokens[name];
   }
 
@@ -188,7 +201,7 @@ export class TokenService {
       throw new ForbiddenException(`${name}は存在しません。`);
     }
     if (
-      user.tokens[token.name] ||
+      user.tokens[token.name] &&
       user.tokens[token.name] > transactionTokenDto.amount
     ) {
       if (token.checkingIp) {
@@ -197,8 +210,23 @@ export class TokenService {
       user = await this.removeToken(user, token, transactionTokenDto.amount);
     } else {
       await this.usersService.checkIp(transactionTokenDto.id, ipAddress);
-      user = await this.kfcService.removeKfc(user, transactionTokenDto.amount);
-      user = await this.addToken(user, token, transactionTokenDto.amount);
+      user = await this.kfcService.removeKfc(
+        user,
+        transactionTokenDto.amount * token.rate,
+      );
+      if (token.operationType === OperationType.user) {
+        const operator = await this.usersService.getUser(token.operator);
+        await this.kfcService.addKfc(
+          operator,
+          transactionTokenDto.amount * token.rate,
+        );
+      } else if (token.operationType === OperationType.shop) {
+        const operator = await this.shopService.getShop(token.operator);
+        await this.shopService.addKfc(
+          operator,
+          transactionTokenDto.amount * token.rate,
+        );
+      }
     }
     if (transactionTokenDto.isRanking) {
       this.rankingUpdate(

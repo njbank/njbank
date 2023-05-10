@@ -12,7 +12,7 @@ export class User {
   role: Role;
   @Column()
   ipAddress: string;
-  @Column({ default: 0 })
+  @Column('decimal', { default: 0 })
   amount: number;
   @Column('jsonb', { default: {} })
   tokens: { [index: string]: number }[];

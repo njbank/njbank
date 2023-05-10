@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { KfcModule } from '../kfc/kfc.module';
 import { RankingBoard } from '../ranking/entities/ranking-board.entity';
 import { RankingEntries } from '../ranking/entities/ranking-entries.entity';
+import { ShopModule } from '../shop/shop.module';
 import { User } from '../users/entities/user.entity';
 import { UsersModule } from '../users/users.module';
 
@@ -16,6 +17,7 @@ import { TokenService } from './token.service';
     TypeOrmModule.forFeature([Token, User, RankingBoard, RankingEntries]),
     UsersModule,
     KfcModule,
+    ShopModule,
   ],
   exports: [TokenService],
   controllers: [TokenController],
