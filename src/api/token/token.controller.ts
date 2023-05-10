@@ -103,7 +103,7 @@ export class TokenController {
 
   @Post(':token/transfer')
   @HttpCode(200)
-  @ApiOperation({ summary: 'トークンを送金する' })
+  @ApiOperation({ summary: 'トークンを送金する(未実装)' })
   @ApiResponse({
     status: 200,
     description: '処理が正常に完了した',

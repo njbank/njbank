@@ -1,6 +1,3 @@
-import { IncomingMessage } from 'http';
-import url from 'url';
-
 import {
   Injectable,
   NestMiddleware,

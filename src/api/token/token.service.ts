@@ -13,6 +13,7 @@ import { Any, Repository } from 'typeorm';
 import { KfcService } from '../kfc/kfc.service';
 import { RankingBoard } from '../ranking/entities/ranking-board.entity';
 import { RankingEntries } from '../ranking/entities/ranking-entries.entity';
+import { Role } from '../users/entities/role.entity';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 
@@ -46,6 +47,10 @@ export class TokenService {
     if (token) {
       throw new ConflictException(`既に${token.name}は存在します。`);
     }
+    const user = await this.usersService.getUser(createTokenDto.owner);
+    if (user.role === Role.guest) {
+      `OwnerにはMember以上の権限が必要です。`;
+    }
     await this.tokenRepository
       .save({
         name: createTokenDto.name,
@@ -64,6 +69,12 @@ export class TokenService {
     const token = await this.getToken(name);
     if (!token) {
       throw new ForbiddenException(`${token.name}は存在しません。`);
+    }
+    if (updateTokenDto.owner) {
+      const user = await this.usersService.getUser(updateTokenDto.owner);
+      if (user.role === Role.guest) {
+        `OwnerにはMember以上の権限が必要です。`;
+      }
     }
     await this.tokenRepository
       .update(name, {
