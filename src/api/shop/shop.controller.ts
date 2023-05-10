@@ -1,5 +1,10 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiExcludeEndpoint,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { RecordedSalesDto } from './dto/recorded-sales.dto';
 import { ShopTransactionDto } from './dto/shop-transaction.dto';
@@ -86,6 +91,14 @@ export class ShopController {
   })
   async recordedSalesForce(@Body() recordedSalesDto: RecordedSalesDto) {
     await this.shopService.recordedSalesByName(recordedSalesDto.shopName);
+    return '処理が完了しました。';
+  }
+
+  @Post('recorded-sales-batch')
+  @HttpCode(200)
+  @ApiExcludeEndpoint()
+  async recordedSalesBatch() {
+    await this.shopService.recordedSalesBatch();
     return '処理が完了しました。';
   }
 }

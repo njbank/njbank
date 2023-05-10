@@ -174,8 +174,9 @@ export class ShopService {
   async recordedSalesBatch() {
     const shops = await this.shopRepository.find();
     for (const shop of shops) {
-      this.recordedSales(shop);
+      await this.recordedSales(shop);
     }
+    return 'done';
   }
 
   async getShop(shopName: string) {
