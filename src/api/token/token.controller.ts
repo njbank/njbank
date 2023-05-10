@@ -137,7 +137,7 @@ export class TokenController {
 
   @Post(':token/buy-and-withdraw')
   @HttpCode(200)
-  @ApiOperation({ summary: 'トークンを購入する' })
+  @ApiOperation({ summary: 'トークン引き出し、足りなかったら購入する' })
   @ApiResponse({
     status: 200,
     description: '処理が正常に完了した',
