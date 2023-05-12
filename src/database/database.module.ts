@@ -46,7 +46,7 @@ const migrationFilesDir = 'dist/database/migrations/*.js';
         migrations: [migrationFilesDir],
         synchronize: false,
         extra: {
-          ssl: 'true',
+          ssl: configService.get('POSTGRES_SSL') === 'true' ? 'true' : '',
         },
       }),
     }),

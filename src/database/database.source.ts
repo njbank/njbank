@@ -17,6 +17,6 @@ export const AppDataSource = new DataSource({
   migrations: [migrationFilesDir],
   synchronize: false,
   extra: {
-    ssl: 'true',
+    ssl: process.env.POSTGRES_SSL === 'true' ? 'true' : '',
   },
 });
