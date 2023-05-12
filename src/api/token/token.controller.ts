@@ -1,5 +1,11 @@
 import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiExcludeEndpoint,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { RealIP } from 'nestjs-real-ip';
 
 import { BuyTokenDto } from './dto/buy-token.dto';
@@ -108,6 +114,7 @@ export class TokenController {
     status: 200,
     description: '処理が正常に完了した',
   })
+  @ApiExcludeEndpoint()
   async transfer(
     @Param('token') token: string,
     @Body() transferTokenDto: TransferTokenDto,
