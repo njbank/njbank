@@ -1,12 +1,12 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { KfcModule } from './api/kfc/kfc.module';
-import { RankingModule } from './api/ranking/ranking.module';
-import { ShopModule } from './api/shop/shop.module';
-import { SkinModule } from './api/skin/skin.module';
-import { TokenModule } from './api/token/token.module';
-import { UsersModule } from './api/users/users.module';
+import { KfcModule } from './endpoints/kfc/kfc.module';
+import { RankingModule } from './endpoints/ranking/ranking.module';
+import { ShopModule } from './endpoints/shop/shop.module';
+import { SkinModule } from './endpoints/skin/skin.module';
+import { TokenModule } from './endpoints/token/token.module';
+import { UsersModule } from './endpoints/users/users.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
