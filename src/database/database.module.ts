@@ -37,8 +37,12 @@ const migrationFilesDir = 'dist/database/migrations/*.js';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        host: configService.get('POSTGRES_HOST'),
-        port: configService.get('POSTGRES_PORT'),
+        host: configService.get('POSTGRES_SOCKET')
+          ? undefined
+          : configService.get('POSTGRES_HOST'),
+        port: configService.get('POSTGRES_SOCKET')
+          ? undefined
+          : configService.get('POSTGRES_PORT'),
         username: configService.get('POSTGRES_USER'),
         password: configService.get('POSTGRES_PASSWORD'),
         database: configService.get('POSTGRES_DB'),
@@ -46,7 +50,9 @@ const migrationFilesDir = 'dist/database/migrations/*.js';
         migrations: [migrationFilesDir],
         synchronize: false,
         extra: {
-          ssl: configService.get('POSTGRES_SSL') === 'true' ? 'true' : '',
+          socketPath: configService.get('POSTGRES_SOCKET'),
+          ssl:
+            configService.get('POSTGRES_SSL') === 'true' ? 'true' : undefined,
         },
       }),
     }),
