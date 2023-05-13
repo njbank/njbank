@@ -67,21 +67,21 @@ export class KfcService {
     ipAddress: string,
   ): Promise<string> {
     let fromUser = await this.usersService.getUser(transferKfcDto.id);
-    let toUser = await this.usersService.getUser(
-      transferKfcDto.to,
-      transferKfcDto.to.startsWith('U-'),
-    );
     await this.usersService.checkIp(fromUser.id, ipAddress);
     if (fromUser.amount < transferKfcDto.amount) {
       throw new ForbiddenException(`お金が足りません。`);
     }
     if (transferKfcDto.dest === 'account') {
       await this.neosService.sendKfc(
-        toUser.id,
+        transferKfcDto.to,
         transferKfcDto.amount,
         `${fromUser.userName} 様より送金がありました。`,
       );
     } else {
+      let toUser = await this.usersService.getUser(
+        transferKfcDto.to,
+        !transferKfcDto.to.startsWith('U-'),
+      );
       toUser = await this.addKfc(toUser, transferKfcDto.amount);
       await this.neosService.sendMessage(
         toUser.id,
@@ -89,6 +89,10 @@ export class KfcService {
       );
     }
     fromUser = await this.removeKfc(fromUser, transferKfcDto.amount);
+    const toUser = await this.usersService.getUser(
+      transferKfcDto.to,
+      !transferKfcDto.to.startsWith('U-'),
+    );
     await this.neosService.sendMessage(
       fromUser.id,
       `ご利用ありがとうございます。\n${toUser.userName} 様へ ${transferKfcDto.amount} KFC振り込みました。\n残高 ${fromUser.amount} KFC`,
