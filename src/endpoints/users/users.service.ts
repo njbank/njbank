@@ -36,6 +36,7 @@ export class UsersService {
         return 'ユーザーネームを変更しました。';
       }
     }
+    await this.neosService.friendRequest(id);
     await this.userRepository
       .save({
         id: createUserDto.id,
@@ -45,7 +46,6 @@ export class UsersService {
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
-    await this.neosService.friendRequest(id);
     return '口座を開設しました。';
   }
 
