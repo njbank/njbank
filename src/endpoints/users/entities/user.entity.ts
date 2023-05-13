@@ -18,6 +18,6 @@ export class User {
   tokens: { [index: string]: number }[];
   @Column({ default: '' })
   oneTimeCode: string;
-  @Column('jsonb', { default: ['0000NONE'] })
+  @Column('jsonb', { default: [] })
   skin: string[];
 }
