@@ -110,6 +110,7 @@ export class UsersService {
       throw new ForbiddenException(`${id}の口座はありません。`);
     }
     user.skin.sort();
+    user.skin.unshift('NONE');
     return user.skin.join(',');
   }
 
