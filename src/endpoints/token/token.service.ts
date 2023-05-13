@@ -12,7 +12,7 @@ import { Any, Repository } from 'typeorm';
 
 import { KfcService } from '../kfc/kfc.service';
 import { RankingBoard } from '../ranking/entities/ranking-board.entity';
-import { RankingEntries } from '../ranking/entities/ranking-entries.entity';
+import { RankingEntry } from '../ranking/entities/ranking-entriy.entity';
 import { ShopService } from '../shop/shop.service';
 import { Role } from '../users/entities/role.entity';
 import { User } from '../users/entities/user.entity';
@@ -34,8 +34,8 @@ export class TokenService {
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(RankingBoard)
     private rankingBoardRepository: Repository<RankingBoard>,
-    @InjectRepository(RankingEntries)
-    private rankingEntriesRepository: Repository<RankingEntries>,
+    @InjectRepository(RankingEntry)
+    private rankingEntriesRepository: Repository<RankingEntry>,
     private readonly usersService: UsersService,
     private readonly kfcService: KfcService,
     private readonly shopService: ShopService,
@@ -342,13 +342,11 @@ export class TokenService {
         if (entry) {
           await this.rankingEntriesRepository.update(entry.id, {
             amount: entry.amount + amount,
-            userName: user.userName,
           });
         } else {
           await this.rankingEntriesRepository
             .save({
               userId: user.id,
-              userName: user.userName,
               board: item.id,
               amount: amount,
             })

@@ -7,15 +7,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { RankingBoard } from './entities/ranking-board.entity';
-import { RankingEntries } from './entities/ranking-entries.entity';
+import { RankingEntry } from './entities/ranking-entriy.entity';
 
 @Injectable()
 export class RankingService {
   constructor(
     @InjectRepository(RankingBoard)
     private rankingBoardRepository: Repository<RankingBoard>,
-    @InjectRepository(RankingEntries)
-    private rankingEntriesRepository: Repository<RankingEntries>,
+    @InjectRepository(RankingEntry)
+    private rankingEntriesRepository: Repository<RankingEntry>,
   ) {}
 
   async getEntries(token: string, tag: string) {
@@ -30,7 +30,7 @@ export class RankingService {
     const entry = await this.rankingEntriesRepository
       .find({
         where: { board: board.id },
-        order: { amount: 'desc', userName: 'asc' },
+        order: { amount: 'desc', userId: 'asc' },
       })
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
@@ -38,7 +38,9 @@ export class RankingService {
     let ans = '';
     for (let i = 0; i < entry.length; i++) {
       const item = entry[i];
-      ans += `${i !== 0 ? ',' : ''}${encodeURI(item.userName)}:${item.amount}`;
+      ans += `${i !== 0 ? ',' : ''}${encodeURI(item.user.userName)}:${
+        item.amount
+      }`;
     }
     return ans;
   }

@@ -5,7 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { RankingBoard } from '../endpoints/ranking/entities/ranking-board.entity';
-import { RankingEntries } from '../endpoints/ranking/entities/ranking-entries.entity';
+import { RankingEntry } from '../endpoints/ranking/entities/ranking-entriy.entity';
 import { Shop } from '../endpoints/shop/entities/shop.entity';
 import { Skin } from '../endpoints/skin/entities/skin.entity';
 import { Token } from '../endpoints/token/entities/token.entity';
@@ -17,7 +17,7 @@ export const databaseEntities = [
   User,
   Token,
   RankingBoard,
-  RankingEntries,
+  RankingEntry,
   Skin,
   Shop,
   ApiKey,
