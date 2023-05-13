@@ -141,6 +141,9 @@ export class ShopService {
         });
       }
     }
+    if (users.length === 0) {
+      return;
+    }
     let shopBalance = shop.amount;
     for (const item of users) {
       await this.removeKfc(shop, item.amount);
