@@ -178,7 +178,7 @@ export class UsersService {
 
   async checkIp(id: string, ip: string): Promise<boolean> {
     const user = await this.getUser(id);
-    if (user.ipAddress === ip || ip === '::beef') {
+    if (user.ipAddress === ip || ip === '2001:db8::dead:beef') {
       return true;
     } else {
       throw new ForbiddenException(`IPチェックに失敗しました。`);
