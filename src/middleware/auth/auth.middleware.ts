@@ -66,10 +66,10 @@ export class AuthMiddleware implements NestMiddleware {
         const regExp = new RegExp(regString);
         if (regExp.exec(req.baseUrl)) {
           if (
-            req.headers['CF-Connecting-IP'] &&
-            apiKey.ipCheckExcludes.includes(req.headers['CF-Connecting-IP'])
+            req.headers['cf-connecting-ip'] &&
+            apiKey.ipCheckExcludes.includes(req.headers['cf-connecting-ip'])
           ) {
-            req.headers['CF-Connecting-IP'] = '::1';
+            req.headers['cf-connecting-ip'] = '::beef';
           }
           return true;
         }
