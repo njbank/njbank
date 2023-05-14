@@ -181,7 +181,7 @@ export class UsersService {
     if (user.ipAddress === ip || ip === '2001:db8::dead:beef') {
       return true;
     } else {
-      throw new ForbiddenException(`IPチェックに失敗しました。`);
+      throw new ForbiddenException(`IPチェックに失敗しました。(${ip})`);
     }
   }
 }
