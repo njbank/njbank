@@ -68,7 +68,11 @@ export class TokenService {
     return `${createTokenDto.name}を作成しました。`;
   }
 
-  async updateToken(updateTokenDto: UpdateTokenDto, name: string) {
+  async updateToken(
+    updateTokenDto: UpdateTokenDto,
+    name: string,
+    ipAddress: string,
+  ) {
     const token = await this.getToken(name);
     if (!token) {
       throw new ForbiddenException(`${token.name}は存在しません。`);
@@ -79,6 +83,7 @@ export class TokenService {
         `OwnerにはMember以上の権限が必要です。`;
       }
     }
+    this.usersService.checkIp(token.owner, ipAddress, false);
     await this.tokenRepository
       .update(name, {
         owner: updateTokenDto.owner,

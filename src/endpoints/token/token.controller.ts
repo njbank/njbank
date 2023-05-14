@@ -46,8 +46,13 @@ export class TokenController {
   async update(
     @Param('token') token: string,
     @Body() updateTokenDto: UpdateTokenDto,
+    @CfIp() ipAddress: string,
   ) {
-    return await this.tokenService.updateToken(updateTokenDto, token);
+    return await this.tokenService.updateToken(
+      updateTokenDto,
+      token,
+      ipAddress,
+    );
   }
 
   @Get(':token/check/:id')
