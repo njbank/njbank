@@ -10,4 +10,6 @@ export class ApiKey {
   permissions: string[];
   @Column('jsonb', { default: {} })
   paramsWhiteList: { [index: string]: string[] };
+  @Column('jsonb', { default: [] })
+  ipCheckExcludes: string[];
 }
