@@ -47,6 +47,7 @@ export class TokenService {
 
   async create(createTokenDto: CreateTokenDto) {
     const token = await this.getToken(createTokenDto.name);
+    await this.usersService.getUser(createTokenDto.owner);
     if (token) {
       throw new ConflictException(`既に${token.name}は存在します。`);
     }
@@ -74,6 +75,9 @@ export class TokenService {
     ipAddress: string,
   ) {
     const token = await this.getToken(name);
+    if (updateTokenDto.owner) {
+      await this.usersService.getUser(updateTokenDto.owner);
+    }
     if (!token) {
       throw new ForbiddenException(`${token.name}は存在しません。`);
     }
