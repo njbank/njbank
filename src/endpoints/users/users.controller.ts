@@ -5,7 +5,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger/dist';
-import { RealIP } from 'nestjs-real-ip';
+
+import { CfIp } from '../../modules/cf-ip/cf-ip';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
@@ -28,7 +29,7 @@ export class UsersController {
   })
   async create(
     @Body() createUserDto: CreateUserDto,
-    @RealIP() ipAddress: string,
+    @CfIp() ipAddress: string,
   ) {
     return await this.usersService.create(createUserDto, ipAddress);
   }
@@ -85,7 +86,7 @@ export class UsersController {
   async entryCode(
     @Param('id') id: string,
     @Param('code') code: string,
-    @RealIP() ipAddress: string,
+    @CfIp() ipAddress: string,
   ) {
     return await this.usersService.entryCode(id, code, ipAddress);
   }

@@ -6,7 +6,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { RealIP } from 'nestjs-real-ip';
+
+import { CfIp } from '../../modules/cf-ip/cf-ip';
 
 import { BuyTokenDto } from './dto/buy-token.dto';
 import { CreateTokenDto } from './dto/create-token.dto';
@@ -64,7 +65,7 @@ export class TokenController {
   async check(
     @Param('token') token: string,
     @Param('id') id: string,
-    @RealIP() ipAddress: string,
+    @CfIp() ipAddress: string,
   ) {
     return await this.tokenService.checkToken(id, token, ipAddress);
   }
@@ -79,7 +80,7 @@ export class TokenController {
   async deposit(
     @Param('token') token: string,
     @Body() transactionTokenDto: TransactionTokenDto,
-    @RealIP() ipAddress: string,
+    @CfIp() ipAddress: string,
   ) {
     return await this.tokenService.depositToken(
       transactionTokenDto,
@@ -98,7 +99,7 @@ export class TokenController {
   async withdraw(
     @Param('token') token: string,
     @Body() transactionTokenDto: TransactionTokenDto,
-    @RealIP() ipAddress: string,
+    @CfIp() ipAddress: string,
   ) {
     return await this.tokenService.withdrawToken(
       transactionTokenDto,
@@ -118,7 +119,7 @@ export class TokenController {
   async transfer(
     @Param('token') token: string,
     @Body() transferTokenDto: TransferTokenDto,
-    @RealIP() ipAddress: string,
+    @CfIp() ipAddress: string,
   ) {
     return await this.tokenService.transferToken(
       transferTokenDto,
@@ -137,7 +138,7 @@ export class TokenController {
   async buy(
     @Param('token') token: string,
     @Body() buyTokenDto: BuyTokenDto,
-    @RealIP() ipAddress: string,
+    @CfIp() ipAddress: string,
   ) {
     return await this.tokenService.buyToken(buyTokenDto, token, ipAddress);
   }
@@ -152,7 +153,7 @@ export class TokenController {
   async buyAndWithdraw(
     @Param('token') token: string,
     @Body() transactionTokenDto: TransactionTokenDto,
-    @RealIP() ipAddress: string,
+    @CfIp() ipAddress: string,
   ) {
     return await this.tokenService.buyToken(
       transactionTokenDto,

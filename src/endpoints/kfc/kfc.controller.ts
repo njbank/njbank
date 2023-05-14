@@ -5,7 +5,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger/dist';
-import { RealIP } from 'nestjs-real-ip';
+
+import { CfIp } from '../../modules/cf-ip/cf-ip';
 
 import { TransactionKfcDto } from './dto/transaction-kfc.dto';
 import { TransferKfcDto } from './dto/transfer-kfc.dto';
@@ -28,7 +29,7 @@ export class KfcController {
     status: 200,
     description: '所持金を返答',
   })
-  async check(@Param('id') id: string, @RealIP() ipAddress: string) {
+  async check(@Param('id') id: string, @CfIp() ipAddress: string) {
     return await this.kfcService.checkKfc(id, ipAddress);
   }
 
@@ -41,7 +42,7 @@ export class KfcController {
   })
   async deposit(
     @Body() transactionKfcDto: TransactionKfcDto,
-    @RealIP() ipAddress: string,
+    @CfIp() ipAddress: string,
   ) {
     return await this.kfcService.depositKfc(transactionKfcDto, ipAddress);
   }
@@ -55,7 +56,7 @@ export class KfcController {
   })
   async withdraw(
     @Body() transactionKfcDto: TransactionKfcDto,
-    @RealIP() ipAddress: string,
+    @CfIp() ipAddress: string,
   ) {
     return await this.kfcService.withdrawKfc(transactionKfcDto, ipAddress);
   }
@@ -69,7 +70,7 @@ export class KfcController {
   })
   async transfer(
     @Body() transferKfcDto: TransferKfcDto,
-    @RealIP() ipAddress: string,
+    @CfIp() ipAddress: string,
   ) {
     return await this.kfcService.transferKfc(transferKfcDto, ipAddress);
   }
