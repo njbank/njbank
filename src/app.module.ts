@@ -13,6 +13,7 @@ import { UsersModule } from './endpoints/users/users.module';
 import { AuthMiddleware } from './middleware/auth/auth.middleware';
 import { ApiKey } from './middleware/auth/entities/api-key.entity';
 import { Permission } from './middleware/auth/entities/permission.entity';
+import { SetHeadersMiddleware } from './middleware/set-headers/set-headers.middleware';
 import { NeosModule } from './modules/neos/neos.modules';
 
 @Module({
@@ -32,6 +33,7 @@ import { NeosModule } from './modules/neos/neos.modules';
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
+    consumer.apply(SetHeadersMiddleware).forRoutes('*');
     consumer
       .apply(AuthMiddleware)
       .exclude(

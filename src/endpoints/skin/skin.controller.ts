@@ -26,7 +26,7 @@ export class SkinController {
   @HttpCode(200)
   @ApiParam({
     name: 'id',
-    type: string,
+    type: String,
     example: 'SlotSkin-01',
   })
   @ApiResponse({
