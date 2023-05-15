@@ -5,7 +5,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger/dist';
-import { RealIP } from 'nestjs-real-ip';
+
+import { CfIp } from '../../modules/cf-ip/cf-ip';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
@@ -28,7 +29,7 @@ export class UsersController {
   })
   async create(
     @Body() createUserDto: CreateUserDto,
-    @RealIP() ipAddress: string,
+    @CfIp() ipAddress: string,
   ) {
     return await this.usersService.create(createUserDto, ipAddress);
   }
@@ -40,6 +41,7 @@ export class UsersController {
     name: 'id',
     type: String,
     example: 'U-hinanoaira',
+    description: 'NeosユーザーID',
   })
   @ApiResponse({
     status: 200,
@@ -56,6 +58,7 @@ export class UsersController {
     name: 'id',
     type: String,
     example: 'U-hinanoaira',
+    description: 'NeosユーザーID',
   })
   @ApiResponse({
     status: 200,
@@ -72,11 +75,13 @@ export class UsersController {
     name: 'id',
     type: String,
     example: 'U-hinanoaira',
+    description: 'NeosユーザーID',
   })
   @ApiParam({
     name: 'code',
     type: String,
     example: '1234',
+    description: '確認コード',
   })
   @ApiResponse({
     status: 200,
@@ -85,7 +90,7 @@ export class UsersController {
   async entryCode(
     @Param('id') id: string,
     @Param('code') code: string,
-    @RealIP() ipAddress: string,
+    @CfIp() ipAddress: string,
   ) {
     return await this.usersService.entryCode(id, code, ipAddress);
   }
@@ -95,6 +100,7 @@ export class UsersController {
     name: 'id',
     type: String,
     example: 'U-hinanoaira',
+    description: 'NeosユーザーID',
   })
   @ApiOperation({ summary: 'スキン一覧を取得' })
   @ApiResponse({
@@ -110,11 +116,13 @@ export class UsersController {
     name: 'id',
     type: String,
     example: 'U-hinanoaira',
+    description: 'NeosユーザーID',
   })
   @ApiParam({
     name: 'skin',
     type: String,
-    example: 'SlotSkin-01',
+    example: 'SLOTSKIN-01',
+    description: 'スキンID',
   })
   @ApiOperation({ summary: 'スキンを追加' })
   @ApiResponse({
@@ -130,11 +138,13 @@ export class UsersController {
     name: 'id',
     type: String,
     example: 'U-hinanoaira',
+    description: 'NeosユーザーID',
   })
   @ApiParam({
     name: 'skin',
     type: String,
-    example: 'SlotSkin-01',
+    example: 'SLOTSKIN-01',
+    description: 'スキンID',
   })
   @ApiOperation({ summary: 'スキンを削除' })
   @ApiResponse({

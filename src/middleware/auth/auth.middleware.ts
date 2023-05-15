@@ -6,6 +6,8 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { UsersService } from '../../endpoints/users/users.service';
+
 import { ApiKey } from './entities/api-key.entity';
 import { Permission } from './entities/permission.entity';
 
@@ -16,6 +18,7 @@ export class AuthMiddleware implements NestMiddleware {
     private readonly apiKeyRepository: Repository<ApiKey>,
     @InjectRepository(Permission)
     private readonly permissionRepository: Repository<Permission>,
+    private readonly usersService: UsersService,
   ) {}
   async use(req: any, res: any, next: (error?: any) => void) {
     const apikey = req.query['apikey'];
@@ -65,6 +68,16 @@ export class AuthMiddleware implements NestMiddleware {
         }
         const regExp = new RegExp(regString);
         if (regExp.exec(req.baseUrl)) {
+          const user = await this.usersService.getUser(apiKey.owner);
+          if (
+            apiKey.ipCheckExcludes.includes(req.headers['CF-Connecting-IP']) ||
+            apiKey.ipCheckExcludes.includes(req.headers['cf-connecting-ip']) ||
+            user.ipAddress === req.headers['CF-Connecting-IP'] ||
+            user.ipAddress === req.headers['cf-connecting-ip']
+          ) {
+            req.headers['cf-connecting-ip'] = '2001:db8::dead:beef';
+            req.headers['CF-Connecting-IP'] = '2001:db8::dead:beef';
+          }
           return true;
         }
       }

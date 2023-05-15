@@ -15,11 +15,13 @@ export class RankingController {
     name: 'token',
     type: String,
     example: 'QCR',
+    description: 'トークン',
   })
   @ApiParam({
     name: 'tag',
     type: String,
-    example: '20220400',
+    example: '2023-05',
+    description: 'ランキングタグ',
   })
   async getEntries(@Param('token') token: string, @Param('tag') tag: string) {
     return await this.rankingService.getEntries(token, tag);

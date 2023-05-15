@@ -1,6 +1,5 @@
 import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { string } from 'joi';
 
 import { RegisterSkinDto } from './dto/register-skin.dto';
 import { SkinService } from './skin.service';
@@ -26,8 +25,9 @@ export class SkinController {
   @HttpCode(200)
   @ApiParam({
     name: 'id',
-    type: string,
-    example: 'SlotSkin-01',
+    type: String,
+    example: 'SLOTSKIN-01',
+    description: 'スキンID',
   })
   @ApiResponse({
     status: 200,

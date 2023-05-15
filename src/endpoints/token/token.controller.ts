@@ -6,7 +6,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { RealIP } from 'nestjs-real-ip';
+
+import { CfIp } from '../../modules/cf-ip/cf-ip';
 
 import { BuyTokenDto } from './dto/buy-token.dto';
 import { CreateTokenDto } from './dto/create-token.dto';
@@ -45,17 +46,29 @@ export class TokenController {
   async update(
     @Param('token') token: string,
     @Body() updateTokenDto: UpdateTokenDto,
+    @CfIp() ipAddress: string,
   ) {
-    return await this.tokenService.updateToken(updateTokenDto, token);
+    return await this.tokenService.updateToken(
+      updateTokenDto,
+      token,
+      ipAddress,
+    );
   }
 
   @Get(':token/check/:id')
   @HttpCode(200)
   @ApiOperation({ summary: 'トークン残高を確認' })
   @ApiParam({
+    name: 'token',
+    type: String,
+    example: 'QCR',
+    description: 'トークン',
+  })
+  @ApiParam({
     name: 'id',
     type: String,
     example: 'U-hinanoaira',
+    description: 'NeosユーザーID',
   })
   @ApiResponse({
     status: 200,
@@ -64,7 +77,7 @@ export class TokenController {
   async check(
     @Param('token') token: string,
     @Param('id') id: string,
-    @RealIP() ipAddress: string,
+    @CfIp() ipAddress: string,
   ) {
     return await this.tokenService.checkToken(id, token, ipAddress);
   }
@@ -72,6 +85,12 @@ export class TokenController {
   @Post(':token/deposit')
   @HttpCode(200)
   @ApiOperation({ summary: 'トークンを預ける' })
+  @ApiParam({
+    name: 'token',
+    type: String,
+    example: 'QCR',
+    description: 'トークン',
+  })
   @ApiResponse({
     status: 200,
     description: '処理が正常に完了した',
@@ -79,7 +98,7 @@ export class TokenController {
   async deposit(
     @Param('token') token: string,
     @Body() transactionTokenDto: TransactionTokenDto,
-    @RealIP() ipAddress: string,
+    @CfIp() ipAddress: string,
   ) {
     return await this.tokenService.depositToken(
       transactionTokenDto,
@@ -91,6 +110,12 @@ export class TokenController {
   @Post(':token/withdraw')
   @HttpCode(200)
   @ApiOperation({ summary: 'トークンを引き出す' })
+  @ApiParam({
+    name: 'token',
+    type: String,
+    example: 'QCR',
+    description: 'トークン',
+  })
   @ApiResponse({
     status: 200,
     description: '処理が正常に完了した',
@@ -98,7 +123,7 @@ export class TokenController {
   async withdraw(
     @Param('token') token: string,
     @Body() transactionTokenDto: TransactionTokenDto,
-    @RealIP() ipAddress: string,
+    @CfIp() ipAddress: string,
   ) {
     return await this.tokenService.withdrawToken(
       transactionTokenDto,
@@ -110,6 +135,12 @@ export class TokenController {
   @Post(':token/transfer')
   @HttpCode(200)
   @ApiOperation({ summary: 'トークンを送金する(未実装)' })
+  @ApiParam({
+    name: 'token',
+    type: String,
+    example: 'QCR',
+    description: 'トークン',
+  })
   @ApiResponse({
     status: 200,
     description: '処理が正常に完了した',
@@ -118,7 +149,7 @@ export class TokenController {
   async transfer(
     @Param('token') token: string,
     @Body() transferTokenDto: TransferTokenDto,
-    @RealIP() ipAddress: string,
+    @CfIp() ipAddress: string,
   ) {
     return await this.tokenService.transferToken(
       transferTokenDto,
@@ -130,6 +161,12 @@ export class TokenController {
   @Post(':token/buy')
   @HttpCode(200)
   @ApiOperation({ summary: 'トークンを購入する' })
+  @ApiParam({
+    name: 'token',
+    type: String,
+    example: 'QCR',
+    description: 'トークン',
+  })
   @ApiResponse({
     status: 200,
     description: '処理が正常に完了した',
@@ -137,7 +174,7 @@ export class TokenController {
   async buy(
     @Param('token') token: string,
     @Body() buyTokenDto: BuyTokenDto,
-    @RealIP() ipAddress: string,
+    @CfIp() ipAddress: string,
   ) {
     return await this.tokenService.buyToken(buyTokenDto, token, ipAddress);
   }
@@ -145,6 +182,12 @@ export class TokenController {
   @Post(':token/buy-and-withdraw')
   @HttpCode(200)
   @ApiOperation({ summary: 'トークン引き出し、足りなかったら購入する' })
+  @ApiParam({
+    name: 'token',
+    type: String,
+    example: 'QCR',
+    description: 'トークン',
+  })
   @ApiResponse({
     status: 200,
     description: '処理が正常に完了した',
@@ -152,7 +195,7 @@ export class TokenController {
   async buyAndWithdraw(
     @Param('token') token: string,
     @Body() transactionTokenDto: TransactionTokenDto,
-    @RealIP() ipAddress: string,
+    @CfIp() ipAddress: string,
   ) {
     return await this.tokenService.buyToken(
       transactionTokenDto,

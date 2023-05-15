@@ -5,9 +5,9 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as dayjs from 'dayjs';
-import * as timezone from 'dayjs/plugin/timezone';
-import * as utc from 'dayjs/plugin/utc';
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 import { Any, Repository } from 'typeorm';
 
 import { KfcService } from '../kfc/kfc.service';
@@ -47,6 +47,7 @@ export class TokenService {
 
   async create(createTokenDto: CreateTokenDto) {
     const token = await this.getToken(createTokenDto.name);
+    await this.usersService.getUser(createTokenDto.owner);
     if (token) {
       throw new ConflictException(`既に${token.name}は存在します。`);
     }
@@ -68,8 +69,15 @@ export class TokenService {
     return `${createTokenDto.name}を作成しました。`;
   }
 
-  async updateToken(updateTokenDto: UpdateTokenDto, name: string) {
+  async updateToken(
+    updateTokenDto: UpdateTokenDto,
+    name: string,
+    ipAddress: string,
+  ) {
     const token = await this.getToken(name);
+    if (updateTokenDto.owner) {
+      await this.usersService.getUser(updateTokenDto.owner);
+    }
     if (!token) {
       throw new ForbiddenException(`${token.name}は存在しません。`);
     }
@@ -79,6 +87,7 @@ export class TokenService {
         `OwnerにはMember以上の権限が必要です。`;
       }
     }
+    this.usersService.checkIp(token.owner, ipAddress, false);
     await this.tokenRepository
       .update(name, {
         owner: updateTokenDto.owner,

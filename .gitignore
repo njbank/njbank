@@ -36,3 +36,7 @@ lerna-debug.log*
 
 # .env file
 .env
+
+# swagger-spec
+swagger-spec.json
+swagger-spec.yaml
