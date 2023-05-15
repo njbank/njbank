@@ -67,8 +67,8 @@ export class AuthMiddleware implements NestMiddleware {
           }
         }
         const regExp = new RegExp(regString);
-        const user = await this.usersService.getUser(apiKey.owner);
         if (regExp.exec(req.baseUrl)) {
+          const user = await this.usersService.getUser(apiKey.owner);
           if (
             apiKey.ipCheckExcludes.includes(req.headers['CF-Connecting-IP']) ||
             apiKey.ipCheckExcludes.includes(req.headers['cf-connecting-ip']) ||
