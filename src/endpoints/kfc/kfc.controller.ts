@@ -24,6 +24,7 @@ export class KfcController {
     name: 'id',
     type: String,
     example: 'U-hinanoaira',
+    description: 'NeosユーザーID',
   })
   @ApiResponse({
     status: 200,

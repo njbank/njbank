@@ -59,9 +59,16 @@ export class TokenController {
   @HttpCode(200)
   @ApiOperation({ summary: 'トークン残高を確認' })
   @ApiParam({
+    name: 'token',
+    type: String,
+    example: 'QCR',
+    description: 'トークン',
+  })
+  @ApiParam({
     name: 'id',
     type: String,
     example: 'U-hinanoaira',
+    description: 'NeosユーザーID',
   })
   @ApiResponse({
     status: 200,
@@ -78,6 +85,12 @@ export class TokenController {
   @Post(':token/deposit')
   @HttpCode(200)
   @ApiOperation({ summary: 'トークンを預ける' })
+  @ApiParam({
+    name: 'token',
+    type: String,
+    example: 'QCR',
+    description: 'トークン',
+  })
   @ApiResponse({
     status: 200,
     description: '処理が正常に完了した',
@@ -97,6 +110,12 @@ export class TokenController {
   @Post(':token/withdraw')
   @HttpCode(200)
   @ApiOperation({ summary: 'トークンを引き出す' })
+  @ApiParam({
+    name: 'token',
+    type: String,
+    example: 'QCR',
+    description: 'トークン',
+  })
   @ApiResponse({
     status: 200,
     description: '処理が正常に完了した',
@@ -116,6 +135,12 @@ export class TokenController {
   @Post(':token/transfer')
   @HttpCode(200)
   @ApiOperation({ summary: 'トークンを送金する(未実装)' })
+  @ApiParam({
+    name: 'token',
+    type: String,
+    example: 'QCR',
+    description: 'トークン',
+  })
   @ApiResponse({
     status: 200,
     description: '処理が正常に完了した',
@@ -136,6 +161,12 @@ export class TokenController {
   @Post(':token/buy')
   @HttpCode(200)
   @ApiOperation({ summary: 'トークンを購入する' })
+  @ApiParam({
+    name: 'token',
+    type: String,
+    example: 'QCR',
+    description: 'トークン',
+  })
   @ApiResponse({
     status: 200,
     description: '処理が正常に完了した',
@@ -151,6 +182,12 @@ export class TokenController {
   @Post(':token/buy-and-withdraw')
   @HttpCode(200)
   @ApiOperation({ summary: 'トークン引き出し、足りなかったら購入する' })
+  @ApiParam({
+    name: 'token',
+    type: String,
+    example: 'QCR',
+    description: 'トークン',
+  })
   @ApiResponse({
     status: 200,
     description: '処理が正常に完了した',
