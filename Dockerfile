@@ -17,4 +17,4 @@ RUN npm ci --production
 
 COPY --from=build /njbank/dist /njbank/dist
 
-CMD [ "node", "dist/main.js" ]
+CMD [ "npm", "run", "migrateandstart" ]
