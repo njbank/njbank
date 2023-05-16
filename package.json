@@ -9,7 +9,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "node dist/main.js",
-    "migrateandstart": "npm run migration:run && npm run start",
+    "migrateandstart": "npm run migration:production && npm run start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
@@ -21,6 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "migration": "typeorm-ts-node-commonjs",
     "migration:run": "npm run migration migration:run -- --d src/database/database.source.ts",
+    "migration:production": "npx typeorm migration:run -d dist/database/database.production.js",
     "migration:generate": "npm run migration migration:generate -- --d src/database/database.source.ts"
   },
   "dependencies": {
