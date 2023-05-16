@@ -10,6 +10,8 @@ import {
   IsOptional,
 } from 'class-validator';
 
+import { IsKfc } from '../../validator/is-kfc.validator';
+
 export class ShopTransactionDto {
   @IsNotEmpty()
   @IsString()
@@ -22,8 +24,7 @@ export class ShopTransactionDto {
   shopName: string;
 
   @IsNotEmpty()
-  @IsNumber()
-  @Min(0)
+  @IsKfc()
   @ApiProperty({ example: 100, description: '金額' })
   @Transform(({ value }) => new Big(value))
   amount: Big;

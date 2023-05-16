@@ -1,7 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger/dist/decorators';
 import Big from 'big.js';
 import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsString, Min, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
+
+import { IsKfc } from '../../validator/is-kfc.validator';
 
 export class ShopWithdrawDto {
   @IsNotEmpty()
@@ -15,8 +17,7 @@ export class ShopWithdrawDto {
   shopName: string;
 
   @IsNotEmpty()
-  @IsNumber()
-  @Min(0)
+  @IsKfc()
   @ApiProperty({ example: 100, description: '金額' })
   @Transform(({ value }) => new Big(value))
   amount: Big;

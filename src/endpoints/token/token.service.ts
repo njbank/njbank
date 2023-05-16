@@ -185,7 +185,7 @@ export class TokenService {
       throw new ForbiddenException(`${name}は存在しません。`);
     }
     await this.usersService.checkIp(buyTokenDto.id, ipAddress);
-    const kfcAmount = new Big(buyTokenDto.amount).div(token.rate);
+    const kfcAmount = new Big(buyTokenDto.amount).times(token.rate);
     user = await this.kfcService.removeKfc(user, kfcAmount);
     user = await this.addToken(user, token, buyTokenDto.amount);
     if (token.operationType === OperationType.user) {
@@ -218,7 +218,7 @@ export class TokenService {
       user = await this.removeToken(user, token, transactionTokenDto.amount);
     } else {
       await this.usersService.checkIp(transactionTokenDto.id, ipAddress);
-      const kfcAmount = new Big(transactionTokenDto.amount).div(token.rate);
+      const kfcAmount = new Big(transactionTokenDto.amount).times(token.rate);
       user = await this.kfcService.removeKfc(user, kfcAmount);
       if (token.operationType === OperationType.user) {
         const operator = await this.usersService.getUser(token.operator);
