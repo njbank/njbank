@@ -1,4 +1,7 @@
+import Big from 'big.js';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+
+import { ColumnNumericTransformer } from '../../../transformer/column-numeric.transformer';
 
 @Entity('shop')
 export class Shop {
@@ -10,12 +13,21 @@ export class Shop {
   owner: string;
   @Column('jsonb', { default: [] })
   member: string[];
-  @Column({ default: 0 })
-  amount: number;
-  @Column({ default: 0 })
-  lastAmount: number;
+  @Column('decimal', {
+    default: 0,
+    transformer: new ColumnNumericTransformer(),
+  })
+  amount: Big;
+  @Column('decimal', {
+    default: 0,
+    transformer: new ColumnNumericTransformer(),
+  })
+  lastAmount: Big;
   @Column('jsonb', { default: {} })
   autoSendAddress: { [index: string]: number }[];
-  @Column({ default: 0 })
-  autoSendToBeLeft: number;
+  @Column('decimal', {
+    default: 0,
+    transformer: new ColumnNumericTransformer(),
+  })
+  autoSendToBeLeft: Big;
 }

@@ -4,6 +4,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import Big from 'big.js';
 import { Repository } from 'typeorm';
 
 import { NeosService } from '../../modules/neos/neos.service';
@@ -33,6 +34,14 @@ export class KfcService {
   ): Promise<string> {
     await this.usersService.checkIp(transactionKfcDto.id, ipAddress);
     let user = await this.usersService.getUser(transactionKfcDto.id);
+    if (
+      !(await this.neosService.KfcCheck(
+        user.id,
+        transactionKfcDto.amount.toNumber(),
+      ))
+    ) {
+      throw new ForbiddenException('入金に失敗しました。');
+    }
     user = await this.addKfc(user, transactionKfcDto.amount);
     await this.neosService.sendMessage(
       transactionKfcDto.id,
@@ -53,10 +62,10 @@ export class KfcService {
     }
     await this.neosService.sendKfc(
       id,
-      transactionKfcDto.amount,
-      `ご利用ありがとうございます。\n出金 残高 ${
-        user.amount - transactionKfcDto.amount
-      } KFC`,
+      transactionKfcDto.amount.toNumber(),
+      `ご利用ありがとうございます。\n出金 残高 ${user.amount.minus(
+        transactionKfcDto.amount,
+      )} KFC`,
     );
     user = await this.removeKfc(user, transactionKfcDto.amount);
     return `${user.amount}`;
@@ -74,7 +83,7 @@ export class KfcService {
     if (transferKfcDto.dest === 'account') {
       await this.neosService.sendKfc(
         transferKfcDto.to,
-        transferKfcDto.amount,
+        transferKfcDto.amount.toNumber(),
         `${fromUser.userName} 様より送金がありました。`,
       );
     } else {
@@ -100,26 +109,26 @@ export class KfcService {
     return `送金が完了しました。`;
   }
 
-  async addKfc(user: User, amount: number) {
+  async addKfc(user: User, amount: Big) {
     await this.userRepository
-      .update(user.id, { amount: user.amount + amount })
+      .update(user.id, { amount: user.amount.plus(amount).toString() })
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
-    user.amount += amount;
+    user.amount = user.amount.plus(amount);
     return user;
   }
 
-  async removeKfc(user: User, amount: number) {
+  async removeKfc(user: User, amount: Big) {
     if (user.amount < amount) {
       throw new ForbiddenException('KFCが足りません');
     }
     await this.userRepository
-      .update(user.id, { amount: user.amount - amount })
+      .update(user.id, { amount: user.amount.minus(amount).toString() })
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
-    user.amount -= amount;
+    user.amount = user.amount.minus(amount);
     return user;
   }
 }

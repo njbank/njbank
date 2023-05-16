@@ -1,4 +1,11 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Post,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import {
   ApiExcludeEndpoint,
   ApiOperation,
@@ -17,6 +24,7 @@ export class ShopController {
   constructor(private readonly shopService: ShopService) {}
 
   @Post('payment')
+  @UsePipes(new ValidationPipe({ transform: true }))
   @HttpCode(200)
   @ApiOperation({ summary: 'ショップに支払いする' })
   @ApiResponse({
@@ -34,6 +42,7 @@ export class ShopController {
   }
 
   @Post('receipt')
+  @UsePipes(new ValidationPipe({ transform: true }))
   @HttpCode(200)
   @ApiOperation({ summary: 'ショップから返金する' })
   @ApiResponse({
@@ -51,6 +60,7 @@ export class ShopController {
   }
 
   @Post('deposit')
+  @UsePipes(new ValidationPipe({ transform: true }))
   @HttpCode(200)
   @ApiOperation({ summary: 'ショップに入金する' })
   @ApiResponse({
@@ -68,6 +78,7 @@ export class ShopController {
   }
 
   @Post('withdraw')
+  @UsePipes(new ValidationPipe({ transform: true }))
   @HttpCode(200)
   @ApiOperation({ summary: 'ショップから出金する' })
   @ApiResponse({

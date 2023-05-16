@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger/dist/decorators';
-import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
+import Big from 'big.js';
+import { Transform } from 'class-transformer';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class TransactionKfcDto {
   @IsNotEmpty()
@@ -8,8 +10,7 @@ export class TransactionKfcDto {
   id: string;
 
   @IsNotEmpty()
-  @IsNumber()
-  @Min(0)
   @ApiProperty({ example: 100, description: '金額' })
-  amount: number;
+  @Transform(({ value }) => new Big(value))
+  amount: Big;
 }

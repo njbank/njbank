@@ -1,4 +1,7 @@
+import Big from 'big.js';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
+
+import { ColumnNumericTransformer } from '../../../transformer/column-numeric.transformer';
 
 import { OperationType } from './operation-type.entity';
 import { RankingType } from './ranking-type.entity';
@@ -11,8 +14,12 @@ export class Token {
   @Column()
   owner: string;
 
-  @Column('decimal', { precision: 6, scale: 2 })
-  rate: number;
+  @Column('decimal', {
+    precision: 6,
+    scale: 2,
+    transformer: new ColumnNumericTransformer(),
+  })
+  rate: Big;
 
   @Column()
   checkingIp: boolean;

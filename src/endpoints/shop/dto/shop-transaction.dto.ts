@@ -1,4 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger/dist/decorators';
+import Big from 'big.js';
+import { Transform } from 'class-transformer';
 import {
   IsBoolean,
   IsNumber,
@@ -23,7 +25,8 @@ export class ShopTransactionDto {
   @IsNumber()
   @Min(0)
   @ApiProperty({ example: 100, description: '金額' })
-  amount: number;
+  @Transform(({ value }) => new Big(value))
+  amount: Big;
 
   @IsOptional()
   @IsBoolean()

@@ -5,6 +5,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import Big from 'big.js';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
@@ -184,17 +185,15 @@ export class TokenService {
       throw new ForbiddenException(`${name}は存在しません。`);
     }
     await this.usersService.checkIp(buyTokenDto.id, ipAddress);
-    user = await this.kfcService.removeKfc(
-      user,
-      buyTokenDto.amount * token.rate,
-    );
+    const kfcAmount = new Big(buyTokenDto.amount).div(token.rate);
+    user = await this.kfcService.removeKfc(user, kfcAmount);
     user = await this.addToken(user, token, buyTokenDto.amount);
     if (token.operationType === OperationType.user) {
       const operator = await this.usersService.getUser(token.operator);
-      await this.kfcService.addKfc(operator, buyTokenDto.amount * token.rate);
+      await this.kfcService.addKfc(operator, kfcAmount);
     } else if (token.operationType === OperationType.shop) {
       const operator = await this.shopService.getShop(token.operator);
-      await this.shopService.addKfc(operator, buyTokenDto.amount * token.rate);
+      await this.shopService.addKfc(operator, kfcAmount);
     }
     return user.tokens[name];
   }
@@ -219,22 +218,14 @@ export class TokenService {
       user = await this.removeToken(user, token, transactionTokenDto.amount);
     } else {
       await this.usersService.checkIp(transactionTokenDto.id, ipAddress);
-      user = await this.kfcService.removeKfc(
-        user,
-        transactionTokenDto.amount * token.rate,
-      );
+      const kfcAmount = new Big(transactionTokenDto.amount).div(token.rate);
+      user = await this.kfcService.removeKfc(user, kfcAmount);
       if (token.operationType === OperationType.user) {
         const operator = await this.usersService.getUser(token.operator);
-        await this.kfcService.addKfc(
-          operator,
-          transactionTokenDto.amount * token.rate,
-        );
+        await this.kfcService.addKfc(operator, kfcAmount);
       } else if (token.operationType === OperationType.shop) {
         const operator = await this.shopService.getShop(token.operator);
-        await this.shopService.addKfc(
-          operator,
-          transactionTokenDto.amount * token.rate,
-        );
+        await this.shopService.addKfc(operator, kfcAmount);
       }
     }
     if (transactionTokenDto.isRanking) {

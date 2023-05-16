@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+
 import fs from 'fs';
 
 import { ValidationPipe } from '@nestjs/common';
@@ -12,7 +14,11 @@ import { HttpExceptionFilter } from './modules/http-exception-filter/http-except
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.disable('x-powered-by');
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transformOptions: { enableImplicitConversion: true },
+    }),
+  );
   app.useGlobalFilters(new HttpExceptionFilter());
 
   const config = new DocumentBuilder()
