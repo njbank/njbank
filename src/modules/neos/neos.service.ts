@@ -65,8 +65,12 @@ export class NeosService {
         return true;
       }
     }
+    const user = await this.neos.getUser({
+      targetUserId: `U-${id.substring(2)}`,
+    });
     for (const message of neosMessages) {
       if (
+        message.content['comment'].endWith(`\nFrom ${user.username}`) &&
         message.content['token'] === 'KFC' &&
         message.content['amount'] === amount
       ) {
