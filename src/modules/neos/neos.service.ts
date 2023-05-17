@@ -12,8 +12,8 @@ export class NeosService {
     },
     {
       saveLoginCredential: true,
-      useEvents: false,
-      autoSync: false,
+      useEvents: true,
+      autoSync: true,
       overrideBaseUrl: 'https://apiproxy.neos.love/',
     },
   );
@@ -52,7 +52,20 @@ export class NeosService {
       targetUserId: `U-${id.substring(2)}`,
       unReadOnly: true,
     });
+    const neosMessages = await this.neos.getMessages({
+      targetUserId: `U-Neos`,
+      unReadOnly: true,
+    });
     for (const message of messages) {
+      if (
+        message.content['token'] === 'KFC' &&
+        message.content['amount'] === amount
+      ) {
+        await this.neos.readMessage({ messageIds: [message.id] });
+        return true;
+      }
+    }
+    for (const message of neosMessages) {
       if (
         message.content['token'] === 'KFC' &&
         message.content['amount'] === amount
