@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Injectable,
   NestMiddleware,
   UnauthorizedException,
@@ -80,8 +81,10 @@ export class AuthMiddleware implements NestMiddleware {
               req.headers['CF-Connecting-IP']) ||
             apiKey.ipCheckExcludes.includes('*')
           ) {
-            req.headers['cf-connecting-ip'] = '2001:db8::dead:beef';
-            req.headers['CF-Connecting-IP'] = '2001:db8::dead:beef';
+            if (!req.baseUrl.startsWith('/users/entry-code')) {
+              req.headers['cf-connecting-ip'] = '2001:db8::dead:beef';
+              req.headers['CF-Connecting-IP'] = '2001:db8::dead:beef';
+            }
           }
           return true;
         }
