@@ -1,5 +1,4 @@
 import {
-  ForbiddenException,
   Injectable,
   NestMiddleware,
   UnauthorizedException,
