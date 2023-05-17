@@ -70,10 +70,14 @@ export class AuthMiddleware implements NestMiddleware {
         if (regExp.exec(req.baseUrl)) {
           const user = await this.usersService.getUser(apiKey.owner);
           if (
-            apiKey.ipCheckExcludes.includes(req.headers['cf-connecting-ip']) ||
-            apiKey.ipCheckExcludes.includes(req.headers['CF-Connecting-IP']) ||
-            user.ipAddress === req.headers['cf-connecting-ip'] ||
-            user.ipAddress === req.headers['CF-Connecting-IP'] ||
+            (apiKey.ipCheckExcludes.includes(req.headers['cf-connecting-ip']) &&
+              req.headers['cf-connecting-ip']) ||
+            (apiKey.ipCheckExcludes.includes(req.headers['CF-Connecting-IP']) &&
+              req.headers['CF-Connecting-IP']) ||
+            (user.ipAddress === req.headers['cf-connecting-ip'] &&
+              req.headers['cf-connecting-ip']) ||
+            (user.ipAddress === req.headers['CF-Connecting-IP'] &&
+              req.headers['CF-Connecting-IP']) ||
             apiKey.ipCheckExcludes.includes('*')
           ) {
             req.headers['cf-connecting-ip'] = '2001:db8::dead:beef';
