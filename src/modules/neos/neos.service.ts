@@ -21,7 +21,15 @@ export class NeosService {
     this.neos.on('FriendRequested', (friend) => {
       this.neos.addFriend({ targetUserId: friend.id });
     });
-    this.neos.login();
+    this.neos.login().then(() => {
+      this.neos.getFriends().then((friends) => {
+        for (const friend of friends) {
+          if (friend.friendStatus === 'Requested') {
+            this.neos.addFriend({ targetUserId: friend.id });
+          }
+        }
+      });
+    });
   }
   async sendMessage(id: string, message: string) {
     await this.neos.sendTextMessage({
