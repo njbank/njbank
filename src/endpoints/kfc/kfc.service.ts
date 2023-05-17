@@ -60,9 +60,6 @@ export class KfcService {
     const id = transactionKfcDto.id;
     await this.usersService.checkIp(id, ipAddress);
     let user = await this.usersService.getUser(transactionKfcDto.id);
-    if (user.amount < transactionKfcDto.amount) {
-      throw new ForbiddenException(`お金が足りません。`);
-    }
     await this.neosService.sendKfc(
       id,
       transactionKfcDto.amount.toNumber(),
@@ -80,7 +77,7 @@ export class KfcService {
   ): Promise<string> {
     let fromUser = await this.usersService.getUser(transferKfcDto.id);
     await this.usersService.checkIp(fromUser.id, ipAddress);
-    if (fromUser.amount < transferKfcDto.amount) {
+    if (fromUser.amount.toNumber() < transferKfcDto.amount.toNumber()) {
       throw new ForbiddenException(`お金が足りません。`);
     }
     if (transferKfcDto.dest === 'account') {
@@ -134,7 +131,7 @@ export class KfcService {
   }
 
   async removeKfc(user: User, amount: Big, reason = '') {
-    if (user.amount < amount) {
+    if (user.amount.toNumber() < amount.toNumber()) {
       throw new ForbiddenException('KFCが足りません');
     }
     await this.userRepository

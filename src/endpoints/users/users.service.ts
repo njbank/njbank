@@ -81,6 +81,9 @@ export class UsersService {
   }
 
   async entryCode(id: string, code: string, ip: string) {
+    if (ip === '2001:db8::dead:beef') {
+      throw new ForbiddenException('IPCheckパスが有効です。');
+    }
     const user = await this.userRepository.findOneBy({ id }).catch((e) => {
       throw new InternalServerErrorException(e.message);
     });

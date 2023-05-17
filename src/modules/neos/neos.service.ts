@@ -52,8 +52,25 @@ export class NeosService {
       targetUserId: `U-${id.substring(2)}`,
       unReadOnly: true,
     });
+    const neosMessages = await this.neos.getMessages({
+      targetUserId: `U-Neos`,
+      unReadOnly: true,
+    });
     for (const message of messages) {
       if (
+        message.content['token'] === 'KFC' &&
+        message.content['amount'] === amount
+      ) {
+        await this.neos.readMessage({ messageIds: [message.id] });
+        return true;
+      }
+    }
+    const user = await this.neos.getUser({
+      targetUserId: `U-${id.substring(2)}`,
+    });
+    for (const message of neosMessages) {
+      if (
+        message.content['comment'].endWith(`\nFrom ${user.username}`) &&
         message.content['token'] === 'KFC' &&
         message.content['amount'] === amount
       ) {

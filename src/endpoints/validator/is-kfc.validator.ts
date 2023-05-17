@@ -1,4 +1,3 @@
-import Big from 'big.js';
 import {
   ValidateBy,
   ValidationOptions,
@@ -14,7 +13,7 @@ export function IsKfc(
       name: 'Kfc',
       validator: {
         validate(value): boolean {
-          if (value < new Big(0)) {
+          if (value.toNumber() < 0) {
             return false;
           }
           return true;
