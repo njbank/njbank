@@ -129,7 +129,7 @@ export class ShopService {
   ) {
     const user = await this.usersService.getUser(id);
     let shop = await this.getShop(shopName);
-    if (shop.amount < amount) {
+    if (shop.amount.toNumber() < amount.toNumber()) {
       throw new ForbiddenException('KFCが足りません');
     }
     if (userAnnounce) {
@@ -239,7 +239,7 @@ export class ShopService {
     if (shop.amount === new Big(-1)) {
       return shop;
     }
-    if (shop.amount < amount) {
+    if (shop.amount.toNumber() < amount.toNumber()) {
       throw new ForbiddenException('KFCが足りません');
     }
     await this.shopRepository
