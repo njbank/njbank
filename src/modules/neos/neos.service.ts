@@ -12,23 +12,22 @@ export class NeosService {
     },
     {
       saveLoginCredential: true,
-      useEvents: true,
-      autoSync: true,
+      useEvents: false,
+      autoSync: false,
       overrideBaseUrl: 'https://apiproxy.neos.love/',
     },
   );
   constructor() {
-    this.neos.on('FriendRequested', (friend) => {
-      this.neos.addFriend({ targetUserId: friend.id });
-    });
     this.neos.login().then(() => {
-      this.neos.getFriends().then((friends) => {
-        for (const friend of friends) {
-          if (friend.friendStatus === 'Requested') {
-            this.neos.addFriend({ targetUserId: friend.id });
+      setInterval(() => {
+        this.neos.getFriends().then((friends) => {
+          for (const friend of friends) {
+            if (friend.friendStatus === 'Requested') {
+              this.neos.addFriend({ targetUserId: friend.id });
+            }
           }
-        }
-      });
+        });
+      }, 60 * 1000);
     });
   }
   async sendMessage(id: string, message: string) {
