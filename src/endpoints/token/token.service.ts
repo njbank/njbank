@@ -11,6 +11,8 @@ import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { Any, Repository } from 'typeorm';
 
+import { LoggingService } from '../../modules/logging/logging.service';
+import { Log } from '../../modules/logging/tneities/log.entity';
 import { KfcService } from '../kfc/kfc.service';
 import { RankingBoard } from '../ranking/entities/ranking-board.entity';
 import { RankingEntry } from '../ranking/entities/ranking-entriy.entity';
@@ -40,6 +42,7 @@ export class TokenService {
     private readonly usersService: UsersService,
     private readonly kfcService: KfcService,
     private readonly shopService: ShopService,
+    private readonly loggingService: LoggingService,
   ) {
     dayjs.extend(utc);
     dayjs.extend(timezone);
@@ -130,7 +133,12 @@ export class TokenService {
     if (token.checkingIp) {
       await this.usersService.checkIp(transactionTokenDto.id, ipAddress);
     }
-    user = await this.addToken(user, token, transactionTokenDto.amount);
+    user = await this.addToken(
+      user,
+      token,
+      transactionTokenDto.amount,
+      'deposit',
+    );
     if (transactionTokenDto.isRanking) {
       this.rankingUpdate(
         token,
@@ -155,7 +163,12 @@ export class TokenService {
     if (token.checkingIp) {
       await this.usersService.checkIp(transactionTokenDto.id, ipAddress);
     }
-    user = await this.removeToken(user, token, transactionTokenDto.amount);
+    user = await this.removeToken(
+      user,
+      token,
+      transactionTokenDto.amount,
+      'withdraw',
+    );
     if (transactionTokenDto.isRanking) {
       this.rankingUpdate(
         token,
@@ -191,7 +204,12 @@ export class TokenService {
       kfcAmount,
       `buy token ${token.name} > ${buyTokenDto.amount}`,
     );
-    user = await this.addToken(user, token, buyTokenDto.amount);
+    user = await this.addToken(
+      user,
+      token,
+      buyTokenDto.amount,
+      `buy token ${token.name} > ${buyTokenDto.amount}`,
+    );
     if (token.operationType === OperationType.user) {
       const operator = await this.usersService.getUser(token.operator);
       await this.kfcService.addKfc(
@@ -227,14 +245,19 @@ export class TokenService {
       if (token.checkingIp) {
         await this.usersService.checkIp(transactionTokenDto.id, ipAddress);
       }
-      user = await this.removeToken(user, token, transactionTokenDto.amount);
+      user = await this.removeToken(
+        user,
+        token,
+        transactionTokenDto.amount,
+        'withdraw',
+      );
     } else {
       await this.usersService.checkIp(transactionTokenDto.id, ipAddress);
       const kfcAmount = new Big(transactionTokenDto.amount).times(token.rate);
       user = await this.kfcService.removeKfc(
         user,
         kfcAmount,
-        `buy token ${token.name} > ${transactionTokenDto.amount}`,
+        `buy and withdraw token ${token.name} > ${transactionTokenDto.amount}`,
       );
       if (token.operationType === OperationType.user) {
         const operator = await this.usersService.getUser(token.operator);
@@ -389,7 +412,7 @@ export class TokenService {
     return token;
   }
 
-  async addToken(user: User, token: Token, amount: number) {
+  async addToken(user: User, token: Token, amount: number, reason = '') {
     if (user.tokens[token.name]) {
       user.tokens[token.name] += amount;
       await this.userRepository
@@ -409,10 +432,19 @@ export class TokenService {
           throw new InternalServerErrorException(e.message);
         });
     }
+    await this.loggingService.log(
+      new Log(
+        'user',
+        user.id,
+        `token:${token.name}`,
+        `${amount.toString()}`,
+        reason,
+      ),
+    );
     return user;
   }
 
-  async removeToken(user: User, token: Token, amount: number) {
+  async removeToken(user: User, token: Token, amount: number, reason = '') {
     if (user.tokens[token.name]) {
       if (user.tokens[token.name] < amount) {
         throw new ForbiddenException(`トークンが足りません。`);
@@ -428,6 +460,15 @@ export class TokenService {
     } else {
       throw new ForbiddenException(`トークンを持っていません。`);
     }
+    await this.loggingService.log(
+      new Log(
+        'user',
+        user.id,
+        `token:${token.name}`,
+        `${amount.toString()}`,
+        reason,
+      ),
+    );
     return user;
   }
 }
