@@ -4,8 +4,11 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import Big from 'big.js';
 import { Repository } from 'typeorm';
 
+import { LoggingService } from '../../modules/logging/logging.service';
+import { Log } from '../../modules/logging/tneities/log.entity';
 import { NeosService } from '../../modules/neos/neos.service';
 import { KfcService } from '../kfc/kfc.service';
 import { User } from '../users/entities/user.entity';
@@ -20,6 +23,7 @@ export class ShopService {
     private readonly neosService: NeosService,
     private readonly usersService: UsersService,
     private readonly kfcService: KfcService,
+    private readonly loggingService: LoggingService,
   ) {}
 
   //async create() {}
@@ -31,14 +35,18 @@ export class ShopService {
   async payment(
     id: string,
     shopName: string,
-    amount: number,
+    amount: Big,
     shopAnnounce = true,
     userAnnounce = true,
   ) {
     let user = await this.usersService.getUser(id);
     let shop = await this.getShop(shopName);
-    user = await this.kfcService.removeKfc(user, amount);
-    shop = await this.addKfc(shop, amount);
+    user = await this.kfcService.removeKfc(
+      user,
+      amount,
+      `payment to ${shop.shopName}`,
+    );
+    shop = await this.addKfc(shop, amount, `payment from ${id}`);
     if (userAnnounce) {
       await this.neosService.sendMessage(
         user.id,
@@ -57,14 +65,18 @@ export class ShopService {
   async receipt(
     id: string,
     shopName: string,
-    amount: number,
+    amount: Big,
     shopAnnounce = true,
     userAnnounce = true,
   ) {
     let user = await this.usersService.getUser(id);
     let shop = await this.getShop(shopName);
-    shop = await this.removeKfc(shop, amount);
-    user = await this.kfcService.addKfc(user, amount);
+    shop = await this.removeKfc(shop, amount, `receipt to ${shop.shopName}`);
+    user = await this.kfcService.addKfc(
+      user,
+      amount,
+      `receipt from ${shop.shopName}`,
+    );
     if (userAnnounce) {
       await this.neosService.sendMessage(
         user.id,
@@ -83,13 +95,16 @@ export class ShopService {
   async deposit(
     id: string,
     shopName: string,
-    amount: number,
+    amount: Big,
     shopAnnounce = true,
     userAnnounce = true,
   ) {
     const user = await this.usersService.getUser(id);
+    if (!(await this.neosService.KfcCheck(user.id, amount.toNumber()))) {
+      throw new ForbiddenException('入金に失敗しました。');
+    }
     let shop = await this.getShop(shopName);
-    shop = await this.addKfc(shop, amount);
+    shop = await this.addKfc(shop, amount, `deposit from ${id}`);
     if (userAnnounce) {
       await this.neosService.sendMessage(
         user.id,
@@ -105,22 +120,32 @@ export class ShopService {
     return '入金が完了しました。';
   }
 
-  async withdraw(id: string, shopName: string, amount: number) {
+  async withdraw(
+    id: string,
+    shopName: string,
+    amount: Big,
+    shopAnnounce = true,
+    userAnnounce = true,
+  ) {
     const user = await this.usersService.getUser(id);
     let shop = await this.getShop(shopName);
     if (shop.amount < amount) {
       throw new ForbiddenException('KFCが足りません');
     }
-    await this.neosService.sendKfc(
-      user.id,
-      amount,
-      `${shop.shopName} から ${amount} KFCの出金を行いました。`,
-    );
-    shop = await this.removeKfc(shop, amount);
-    await this.neosService.sendMessage(
-      shop.owner,
-      `${shop.shopName} から ${user.userName} 様へ ${amount} KFCの出金を行いました。\n残高 ${shop.amount} KFC`,
-    );
+    if (userAnnounce) {
+      await this.neosService.sendKfc(
+        user.id,
+        amount.toNumber(),
+        `${shop.shopName} から ${amount} KFCの出金を行いました。`,
+      );
+    }
+    shop = await this.removeKfc(shop, amount, `withdraw to ${id}`);
+    if (shopAnnounce) {
+      await this.neosService.sendMessage(
+        shop.owner,
+        `${shop.shopName} から ${user.userName} 様へ ${amount} KFCの出金を行いました。\n残高 ${shop.amount} KFC`,
+      );
+    }
     return '出金が完了しました。';
   }
 
@@ -130,14 +155,14 @@ export class ShopService {
   }
 
   async recordedSales(shop: Shop) {
-    const users: { user: User; amount: number }[] = [];
+    const users: { user: User; amount: Big }[] = [];
     const count = Object.keys(shop.autoSendAddress).length;
     for (const key in shop.autoSendAddress) {
-      const amount = (shop.amount - shop.autoSendToBeLeft) / count;
-      if (amount !== 0) {
+      const amount = shop.amount.minus(shop.autoSendToBeLeft).div(count);
+      if (amount !== new Big(0)) {
         users.push({
           user: await this.usersService.getUser(key),
-          amount: Math.floor((shop.amount - shop.autoSendToBeLeft) / count),
+          amount: shop.amount.minus(shop.autoSendToBeLeft).div(count),
         });
       }
     }
@@ -146,19 +171,19 @@ export class ShopService {
     }
     let shopBalance = shop.amount;
     for (const item of users) {
-      await this.removeKfc(shop, item.amount);
+      await this.removeKfc(shop, item.amount, `recordedSales ${item.user.id}`);
       await this.neosService.sendKfc(
         item.user.id,
-        item.amount,
+        item.amount.toNumber(),
         `${shop.shopName} から ${item.amount} KFCの出金を行いました。`,
       );
-      shopBalance -= item.amount;
+      shopBalance = shopBalance.minus(item.amount);
     }
     await this.neosService.sendMessage(
       shop.owner,
-      `${shop.shopName} 売り上げ報告\n前回より${
-        shop.amount - shop.lastAmount
-      } KFC の売り上げがありました。`,
+      `${shop.shopName} 売り上げ報告\n前回より${shop.amount.minus(
+        shop.lastAmount,
+      )} KFC の売り上げがありました。`,
     );
     for (const item of users) {
       await this.neosService.sendMessage(
@@ -194,32 +219,38 @@ export class ShopService {
     return shop;
   }
 
-  async addKfc(shop: Shop, amount: number) {
-    if (shop.amount === -1) {
+  async addKfc(shop: Shop, amount: Big, reason = '') {
+    if (shop.amount === new Big(-1)) {
       return shop;
     }
     await this.shopRepository
-      .update(shop.id, { amount: shop.amount + amount })
+      .update(shop.id, { amount: shop.amount.plus(amount).toString() })
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
-    shop.amount += amount;
+    await this.loggingService.log(
+      new Log('shop', shop.shopName, 'kfc', `${amount.toString()}`, reason),
+    );
+    shop.amount = shop.amount.plus(amount);
     return shop;
   }
 
-  async removeKfc(shop: Shop, amount: number) {
-    if (shop.amount === -1) {
+  async removeKfc(shop: Shop, amount: Big, reason = '') {
+    if (shop.amount === new Big(-1)) {
       return shop;
     }
     if (shop.amount < amount) {
       throw new ForbiddenException('KFCが足りません');
     }
     await this.shopRepository
-      .update(shop.id, { amount: shop.amount - amount })
+      .update(shop.id, { amount: shop.amount.minus(amount).toString() })
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
-    shop.amount -= amount;
+    await this.loggingService.log(
+      new Log('shop', shop.shopName, 'kfc', `-${amount.toString()}`, reason),
+    );
+    shop.amount = shop.amount.minus(amount);
     return shop;
   }
 }

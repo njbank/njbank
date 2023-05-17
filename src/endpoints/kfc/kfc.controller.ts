@@ -1,4 +1,13 @@
-import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import {
   ApiOperation,
   ApiParam,
@@ -35,6 +44,7 @@ export class KfcController {
   }
 
   @Post('deposit')
+  @UsePipes(new ValidationPipe({ transform: true }))
   @HttpCode(200)
   @ApiOperation({ summary: 'KFCを預ける' })
   @ApiResponse({
@@ -49,6 +59,7 @@ export class KfcController {
   }
 
   @Post('withdraw')
+  @UsePipes(new ValidationPipe({ transform: true }))
   @HttpCode(200)
   @ApiOperation({ summary: 'KFCを引き出す' })
   @ApiResponse({

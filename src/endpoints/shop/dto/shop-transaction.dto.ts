@@ -1,12 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger/dist/decorators';
-import {
-  IsBoolean,
-  IsNumber,
-  IsNotEmpty,
-  IsString,
-  Min,
-  IsOptional,
-} from 'class-validator';
+import Big from 'big.js';
+import { Transform } from 'class-transformer';
+import { IsBoolean, IsNotEmpty, IsString, IsOptional } from 'class-validator';
+
+import { IsKfc } from '../../validator/is-kfc.validator';
 
 export class ShopTransactionDto {
   @IsNotEmpty()
@@ -20,10 +17,10 @@ export class ShopTransactionDto {
   shopName: string;
 
   @IsNotEmpty()
-  @IsNumber()
-  @Min(0)
+  @IsKfc()
   @ApiProperty({ example: 100, description: '金額' })
-  amount: number;
+  @Transform(({ value }) => new Big(value))
+  amount: Big;
 
   @IsOptional()
   @IsBoolean()

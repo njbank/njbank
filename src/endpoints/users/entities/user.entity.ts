@@ -1,4 +1,7 @@
+import Big from 'big.js';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
+
+import { ColumnNumericTransformer } from '../../../transformer/column-numeric.transformer';
 
 import { Role } from './role.entity';
 
@@ -12,8 +15,11 @@ export class User {
   role: Role;
   @Column()
   ipAddress: string;
-  @Column('decimal', { default: 0 })
-  amount: number;
+  @Column('decimal', {
+    default: 0,
+    transformer: new ColumnNumericTransformer(),
+  })
+  amount: Big;
   @Column('jsonb', { default: {} })
   tokens: { [index: string]: number }[];
   @Column({ default: '' })

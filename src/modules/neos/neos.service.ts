@@ -12,16 +12,23 @@ export class NeosService {
     },
     {
       saveLoginCredential: true,
-      useEvents: true,
-      autoSync: true,
+      useEvents: false,
+      autoSync: false,
       overrideBaseUrl: 'https://apiproxy.neos.love/',
     },
   );
   constructor() {
-    this.neos.on('FriendRequested', (friend) => {
-      this.neos.addFriend({ targetUserId: friend.id });
+    this.neos.login().then(() => {
+      setInterval(() => {
+        this.neos.getFriends().then((friends) => {
+          for (const friend of friends) {
+            if (friend.friendStatus === 'Requested') {
+              this.neos.addFriend({ targetUserId: friend.id });
+            }
+          }
+        });
+      }, 60 * 1000);
     });
-    this.neos.login();
   }
   async sendMessage(id: string, message: string) {
     await this.neos.sendTextMessage({
@@ -39,5 +46,21 @@ export class NeosService {
   }
   async friendRequest(id: string) {
     await this.neos.addFriend({ targetUserId: `U-${id.substring(2)}` });
+  }
+  async KfcCheck(id: string, amount: number) {
+    const messages = await this.neos.getMessages({
+      targetUserId: `U-${id.substring(2)}`,
+      unReadOnly: true,
+    });
+    for (const message of messages) {
+      if (
+        message.content['token'] === 'KFC' &&
+        message.content['amount'] === amount
+      ) {
+        await this.neos.readMessage({ messageIds: [message.id] });
+        return true;
+      }
+    }
+    return false;
   }
 }

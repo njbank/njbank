@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { LoggingModule } from '../../modules/logging/logging.modules';
 import { NeosModule } from '../../modules/neos/neos.modules';
 import { KfcModule } from '../kfc/kfc.module';
 import { User } from '../users/entities/user.entity';
@@ -16,6 +17,7 @@ import { ShopService } from './shop.service';
     NeosModule,
     UsersModule,
     KfcModule,
+    LoggingModule,
   ],
   exports: [ShopService],
   controllers: [ShopController],

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { LoggingModule } from '../../modules/logging/logging.modules';
 import { KfcModule } from '../kfc/kfc.module';
 import { RankingBoard } from '../ranking/entities/ranking-board.entity';
 import { RankingEntry } from '../ranking/entities/ranking-entriy.entity';
@@ -18,6 +19,7 @@ import { TokenService } from './token.service';
     UsersModule,
     KfcModule,
     ShopModule,
+    LoggingModule,
   ],
   exports: [TokenService],
   controllers: [TokenController],

@@ -8,7 +8,8 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
+    "start": "node dist/main.js",
+    "migrateandstart": "npm run migration:production && npm run start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
@@ -20,6 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "migration": "typeorm-ts-node-commonjs",
     "migration:run": "npm run migration migration:run -- --d src/database/database.source.ts",
+    "migration:production": "npx typeorm migration:run -d dist/database/database.production.js",
     "migration:generate": "npm run migration migration:generate -- --d src/database/database.source.ts"
   },
   "dependencies": {
@@ -30,6 +32,8 @@
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/swagger": "^6.3.0",
     "@nestjs/typeorm": "^9.0.1",
+    "@types/big.js": "^6.1.6",
+    "big.js": "^6.2.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "dayjs": "^1.11.7",

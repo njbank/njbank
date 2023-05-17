@@ -1,4 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger/dist/decorators';
+import Big from 'big.js';
+import { Type } from 'class-transformer';
 import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 enum Dest {
@@ -20,7 +22,8 @@ export class TransferKfcDto {
   @IsNotEmpty()
   @IsNumber()
   @ApiProperty({ example: 100, description: '金額' })
-  amount: number;
+  @Type(() => Big)
+  amount: Big;
 
   @IsNotEmpty()
   @IsEnum(Dest)

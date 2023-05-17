@@ -35,7 +35,7 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 # .env file
-.env
+.env*
 
 # swagger-spec
 swagger-spec.json

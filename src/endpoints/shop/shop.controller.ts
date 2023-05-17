@@ -1,4 +1,11 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Post,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import {
   ApiExcludeEndpoint,
   ApiOperation,
@@ -8,7 +15,6 @@ import {
 
 import { RecordedSalesDto } from './dto/recorded-sales.dto';
 import { ShopTransactionDto } from './dto/shop-transaction.dto';
-import { ShopWithdrawDto } from './dto/shop-withdraw.dto';
 import { ShopService } from './shop.service';
 
 @Controller('shop')
@@ -17,6 +23,7 @@ export class ShopController {
   constructor(private readonly shopService: ShopService) {}
 
   @Post('payment')
+  @UsePipes(new ValidationPipe({ transform: true }))
   @HttpCode(200)
   @ApiOperation({ summary: 'ショップに支払いする' })
   @ApiResponse({
@@ -34,6 +41,7 @@ export class ShopController {
   }
 
   @Post('receipt')
+  @UsePipes(new ValidationPipe({ transform: true }))
   @HttpCode(200)
   @ApiOperation({ summary: 'ショップから返金する' })
   @ApiResponse({
@@ -51,6 +59,7 @@ export class ShopController {
   }
 
   @Post('deposit')
+  @UsePipes(new ValidationPipe({ transform: true }))
   @HttpCode(200)
   @ApiOperation({ summary: 'ショップに入金する' })
   @ApiResponse({
@@ -68,17 +77,20 @@ export class ShopController {
   }
 
   @Post('withdraw')
+  @UsePipes(new ValidationPipe({ transform: true }))
   @HttpCode(200)
   @ApiOperation({ summary: 'ショップから出金する' })
   @ApiResponse({
     status: 200,
     description: '処理が正しく完了した',
   })
-  async withdraw(@Body() shopWithdrawDto: ShopWithdrawDto) {
+  async withdraw(@Body() shopTransactionDto: ShopTransactionDto) {
     return await this.shopService.withdraw(
-      shopWithdrawDto.id,
-      shopWithdrawDto.shopName,
-      shopWithdrawDto.amount,
+      shopTransactionDto.id,
+      shopTransactionDto.shopName,
+      shopTransactionDto.amount,
+      shopTransactionDto.shopAnnounce,
+      shopTransactionDto.userAnnounce,
     );
   }
 
