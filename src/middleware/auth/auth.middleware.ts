@@ -71,8 +71,6 @@ export class AuthMiddleware implements NestMiddleware {
           const user = await this.usersService.getUser(apiKey.owner);
           if (
             apiKey.ipCheckExcludes.includes(req.client.remoteAddress) ||
-            apiKey.ipCheckExcludes.includes(req.client.remoteAddress) ||
-            user.ipAddress === req.client.remoteAddress ||
             user.ipAddress === req.client.remoteAddress ||
             apiKey.ipCheckExcludes.includes('*')
           ) {
