@@ -1,14 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger/dist/decorators';
 import Big from 'big.js';
 import { Transform } from 'class-transformer';
-import {
-  IsBoolean,
-  IsNumber,
-  IsNotEmpty,
-  IsString,
-  Min,
-  IsOptional,
-} from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsString, IsOptional } from 'class-validator';
 
 import { IsKfc } from '../../validator/is-kfc.validator';
 

@@ -1,7 +1,6 @@
 import Big from 'big.js';
 import {
   ValidateBy,
-  ValidationArguments,
   ValidationOptions,
   isValidationOptions,
 } from 'class-validator';
@@ -14,7 +13,7 @@ export function IsKfc(
     {
       name: 'Kfc',
       validator: {
-        validate(value, args: ValidationArguments): boolean {
+        validate(value): boolean {
           if (value < new Big(0)) {
             return false;
           }
