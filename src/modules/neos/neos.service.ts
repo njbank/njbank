@@ -12,8 +12,8 @@ export class NeosService {
     },
     {
       saveLoginCredential: true,
-      useEvents: true,
-      autoSync: true,
+      useEvents: false,
+      autoSync: false,
       overrideBaseUrl: 'https://apiproxy.neos.love/',
     },
   );
