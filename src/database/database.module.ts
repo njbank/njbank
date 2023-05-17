@@ -12,6 +12,7 @@ import { Token } from '../endpoints/token/entities/token.entity';
 import { User } from '../endpoints/users/entities/user.entity';
 import { ApiKey } from '../middleware/auth/entities/api-key.entity';
 import { Permission } from '../middleware/auth/entities/permission.entity';
+import { Log } from '../modules/logging/tneities/log.entity';
 
 export const databaseEntities = [
   User,
@@ -22,6 +23,7 @@ export const databaseEntities = [
   Shop,
   ApiKey,
   Permission,
+  Log,
 ];
 
 const migrationFilesDir = 'dist/database/migrations/*.js';

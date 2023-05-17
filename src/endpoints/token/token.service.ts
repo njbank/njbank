@@ -186,14 +186,26 @@ export class TokenService {
     }
     await this.usersService.checkIp(buyTokenDto.id, ipAddress);
     const kfcAmount = new Big(buyTokenDto.amount).times(token.rate);
-    user = await this.kfcService.removeKfc(user, kfcAmount);
+    user = await this.kfcService.removeKfc(
+      user,
+      kfcAmount,
+      `buy token ${token.name} > ${buyTokenDto.amount}`,
+    );
     user = await this.addToken(user, token, buyTokenDto.amount);
     if (token.operationType === OperationType.user) {
       const operator = await this.usersService.getUser(token.operator);
-      await this.kfcService.addKfc(operator, kfcAmount);
+      await this.kfcService.addKfc(
+        operator,
+        kfcAmount,
+        `token purchased ${token.name} > ${buyTokenDto.amount}`,
+      );
     } else if (token.operationType === OperationType.shop) {
       const operator = await this.shopService.getShop(token.operator);
-      await this.shopService.addKfc(operator, kfcAmount);
+      await this.shopService.addKfc(
+        operator,
+        kfcAmount,
+        `token purchased ${token.name} > ${buyTokenDto.amount}`,
+      );
     }
     return user.tokens[name];
   }
@@ -219,13 +231,25 @@ export class TokenService {
     } else {
       await this.usersService.checkIp(transactionTokenDto.id, ipAddress);
       const kfcAmount = new Big(transactionTokenDto.amount).times(token.rate);
-      user = await this.kfcService.removeKfc(user, kfcAmount);
+      user = await this.kfcService.removeKfc(
+        user,
+        kfcAmount,
+        `buy token ${token.name} > ${transactionTokenDto.amount}`,
+      );
       if (token.operationType === OperationType.user) {
         const operator = await this.usersService.getUser(token.operator);
-        await this.kfcService.addKfc(operator, kfcAmount);
+        await this.kfcService.addKfc(
+          operator,
+          kfcAmount,
+          `token purchased ${token.name} > ${transactionTokenDto.amount}`,
+        );
       } else if (token.operationType === OperationType.shop) {
         const operator = await this.shopService.getShop(token.operator);
-        await this.shopService.addKfc(operator, kfcAmount);
+        await this.shopService.addKfc(
+          operator,
+          kfcAmount,
+          `token purchased ${token.name} > ${transactionTokenDto.amount}`,
+        );
       }
     }
     if (transactionTokenDto.isRanking) {

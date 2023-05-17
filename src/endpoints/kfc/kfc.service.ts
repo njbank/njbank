@@ -7,6 +7,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import Big from 'big.js';
 import { Repository } from 'typeorm';
 
+import { LoggingService } from '../../modules/logging/logging.service';
+import { Log } from '../../modules/logging/tneities/log.entity';
 import { NeosService } from '../../modules/neos/neos.service';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
@@ -20,6 +22,7 @@ export class KfcService {
     @InjectRepository(User) private userRepository: Repository<User>,
     private readonly neosService: NeosService,
     private readonly usersService: UsersService,
+    private readonly loggingService: LoggingService,
   ) {}
 
   async checkKfc(id: string, ipAddress: string): Promise<string> {
@@ -42,7 +45,7 @@ export class KfcService {
     ) {
       throw new ForbiddenException('入金に失敗しました。');
     }
-    user = await this.addKfc(user, transactionKfcDto.amount);
+    user = await this.addKfc(user, transactionKfcDto.amount, 'deposit');
     await this.neosService.sendMessage(
       transactionKfcDto.id,
       `ご利用ありがとうございます。\n入金 ${transactionKfcDto.amount}KFC 残高 ${user.amount} KFC`,
@@ -67,7 +70,7 @@ export class KfcService {
         transactionKfcDto.amount,
       )} KFC`,
     );
-    user = await this.removeKfc(user, transactionKfcDto.amount);
+    user = await this.removeKfc(user, transactionKfcDto.amount, 'withdraw');
     return `${user.amount}`;
   }
 
@@ -91,13 +94,21 @@ export class KfcService {
         transferKfcDto.to,
         !transferKfcDto.to.startsWith('U-'),
       );
-      toUser = await this.addKfc(toUser, transferKfcDto.amount);
+      toUser = await this.addKfc(
+        toUser,
+        transferKfcDto.amount,
+        `transfer from ${fromUser.id}`,
+      );
       await this.neosService.sendMessage(
         toUser.id,
         `ご利用ありがとうございます。\n${fromUser.userName} 様より口座へ ${transferKfcDto.amount} KFC振り込まれました。\n残高 ${toUser.amount} KFC`,
       );
     }
-    fromUser = await this.removeKfc(fromUser, transferKfcDto.amount);
+    fromUser = await this.removeKfc(
+      fromUser,
+      transferKfcDto.amount,
+      `transfer to ${fromUser.id}`,
+    );
     const toUser = await this.usersService.getUser(
       transferKfcDto.to,
       !transferKfcDto.to.startsWith('U-'),
@@ -109,17 +120,20 @@ export class KfcService {
     return `送金が完了しました。`;
   }
 
-  async addKfc(user: User, amount: Big) {
+  async addKfc(user: User, amount: Big, reason = '') {
     await this.userRepository
       .update(user.id, { amount: user.amount.plus(amount).toString() })
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
+    await this.loggingService.log(
+      new Log('user', user.id, 'kfc', amount.toString(), reason),
+    );
     user.amount = user.amount.plus(amount);
     return user;
   }
 
-  async removeKfc(user: User, amount: Big) {
+  async removeKfc(user: User, amount: Big, reason = '') {
     if (user.amount < amount) {
       throw new ForbiddenException('KFCが足りません');
     }
@@ -128,6 +142,9 @@ export class KfcService {
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
+    await this.loggingService.log(
+      new Log('user', user.id, 'kfc', `-${amount.toString()}`, reason),
+    );
     user.amount = user.amount.minus(amount);
     return user;
   }

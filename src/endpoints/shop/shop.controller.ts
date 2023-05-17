@@ -15,7 +15,6 @@ import {
 
 import { RecordedSalesDto } from './dto/recorded-sales.dto';
 import { ShopTransactionDto } from './dto/shop-transaction.dto';
-import { ShopWithdrawDto } from './dto/shop-withdraw.dto';
 import { ShopService } from './shop.service';
 
 @Controller('shop')
@@ -85,11 +84,13 @@ export class ShopController {
     status: 200,
     description: '処理が正しく完了した',
   })
-  async withdraw(@Body() shopWithdrawDto: ShopWithdrawDto) {
+  async withdraw(@Body() shopTransactionDto: ShopTransactionDto) {
     return await this.shopService.withdraw(
-      shopWithdrawDto.id,
-      shopWithdrawDto.shopName,
-      shopWithdrawDto.amount,
+      shopTransactionDto.id,
+      shopTransactionDto.shopName,
+      shopTransactionDto.amount,
+      shopTransactionDto.shopAnnounce,
+      shopTransactionDto.userAnnounce,
     );
   }
 
