@@ -13,6 +13,7 @@ import { User } from '../endpoints/users/entities/user.entity';
 import { ApiKey } from '../middleware/auth/entities/api-key.entity';
 import { Permission } from '../middleware/auth/entities/permission.entity';
 import { Log } from '../modules/logging/tneities/log.entity';
+import { ExecutedMessage } from '../modules/neos/entities/executed-message.entity';
 
 export const databaseEntities = [
   User,
@@ -24,6 +25,7 @@ export const databaseEntities = [
   ApiKey,
   Permission,
   Log,
+  ExecutedMessage,
 ];
 
 const migrationFilesDir = 'dist/database/migrations/*.js';
