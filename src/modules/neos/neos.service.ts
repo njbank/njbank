@@ -46,16 +46,16 @@ export class NeosService {
     await this.neos.addFriend({ targetUserId: `U-${id.substring(2)}` });
   }
   async KfcCheck(id: string, amount: number) {
-    const messages = await this.neos.getMessages({
+    const user = await this.neos.getUser({
       targetUserId: `U-${id.substring(2)}`,
-      unReadOnly: true,
     });
     const neosMessages = await this.neos.getMessages({
       targetUserId: `U-Neos`,
       unReadOnly: true,
     });
-    for (const message of messages) {
+    for (const message of neosMessages) {
       if (
+        message.content['comment'].endsWith(`\nFrom ${user.username}`) &&
         message.content['token'] === 'KFC' &&
         message.content['amount'] === amount
       ) {
@@ -63,12 +63,12 @@ export class NeosService {
         return true;
       }
     }
-    const user = await this.neos.getUser({
+    const messages = await this.neos.getMessages({
       targetUserId: `U-${id.substring(2)}`,
+      unReadOnly: true,
     });
-    for (const message of neosMessages) {
+    for (const message of messages) {
       if (
-        message.content['comment'].endWith(`\nFrom ${user.username}`) &&
         message.content['token'] === 'KFC' &&
         message.content['amount'] === amount
       ) {
