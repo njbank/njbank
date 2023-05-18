@@ -36,6 +36,17 @@ export class TokenController {
     return await this.tokenService.create(createTokenDto);
   }
 
+  @Post(':token/status')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'トークン更新' })
+  @ApiResponse({
+    status: 200,
+    description: '処理が正常に完了した',
+  })
+  async status(@Param('token') token: string) {
+    return await this.tokenService.status(token);
+  }
+
   @Post(':token/update')
   @HttpCode(200)
   @ApiOperation({ summary: 'トークン更新' })
