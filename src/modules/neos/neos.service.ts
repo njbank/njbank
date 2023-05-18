@@ -19,15 +19,13 @@ export class NeosService {
   );
   constructor() {
     this.neos.login().then(() => {
-      setInterval(() => {
-        this.neos.getFriends().then((friends) => {
-          for (const friend of friends) {
-            if (friend.friendStatus === 'Requested') {
-              this.neos.addFriend({ targetUserId: friend.id });
-            }
+      this.neos.getFriends().then((friends) => {
+        for (const friend of friends) {
+          if (friend.friendStatus === 'Requested') {
+            this.neos.addFriend({ targetUserId: friend.id });
           }
-        });
-      }, 60 * 1000);
+        }
+      });
     });
   }
   async sendMessage(id: string, message: string) {

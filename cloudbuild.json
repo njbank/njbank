@@ -1,0 +1,94 @@
+{
+  "steps": [
+    {
+      "name": "gcr.io/cloud-builders/docker",
+      "entrypoint": "bash",
+      "args": [
+        "-c",
+        "docker pull $_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/build:latest || exit 0"
+      ],
+      "id": "Pull build"
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker",
+      "entrypoint": "bash",
+      "args": [
+        "-c",
+        "docker pull $_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:latest || exit 0"
+      ],
+      "id": "Pull build"
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker",
+      "args": [
+        "build",
+        "--cache-from",
+        "$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/build:latest",
+        "-t",
+        "$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/build:$COMMIT_SHA",
+        "-t",
+        "$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/build:latest",
+        "--target",
+        "build",
+        "."
+      ],
+      "id": "Build build"
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker",
+      "args": [
+        "build",
+        "--cache-from",
+        "$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/build:latest",
+        "--cache-from",
+        "$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:latest",
+        "-t",
+        "$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA",
+        "-t",
+        "$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:latest",
+        "."
+      ],
+      "id": "Build runner"
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker",
+      "args": [
+        "push",
+        "-a",
+        "$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/build"
+      ],
+      "id": "Push build"
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker",
+      "args": [
+        "push",
+        "-a",
+        "$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME"
+      ],
+      "id": "Push runner"
+    },
+    {
+      "name": "gcr.io/google.com/cloudsdktool/cloud-sdk:slim",
+      "args": [
+        "run",
+        "services",
+        "update",
+        "$_SERVICE_NAME",
+        "--platform=$_PLATFORM",
+        "--image=$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA",
+        "--labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID,gcb-trigger-id=$_TRIGGER_ID",
+        "--region=$_DEPLOY_REGION",
+        "--quiet"
+      ],
+      "id": "Deploy",
+      "entrypoint": "gcloud"
+    }
+  ],
+  "images": [
+    "$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA"
+  ],
+  "options": {
+    "substitutionOption": "ALLOW_LOOSE"
+  }
+}
