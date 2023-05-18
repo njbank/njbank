@@ -78,13 +78,13 @@ export class TokenService {
     if (!token) {
       throw new ForbiddenException(`${token.name}は存在しません。`);
     }
-    return `name:${token.name}\nowner:${
+    return `name:${token.name},owner:${
       token.owner
-    }\nrate:${token.rate.toString()}\ncheckingIp:${
+    },rate:${token.rate.toString()},checkingIp:${
       token.checkingIp
-    }\rankingType:${token.owner}\noperationType:${
+    },rankingType:${token.owner},operationType:${
       token.operationType
-    }\noperator:${token.operator}`;
+    },operator:${token.operator}`;
   }
 
   async updateToken(
