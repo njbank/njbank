@@ -21,6 +21,23 @@ import { TokenService } from './token.service';
 export class TokenController {
   constructor(private readonly tokenService: TokenService) {}
 
+  @Get(':token')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'トークンの設定情報を確認' })
+  @ApiParam({
+    name: 'token',
+    type: String,
+    example: 'QCR',
+    description: 'トークン',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'トークン設定情報を返却',
+  })
+  async status(@Param('token') token: string) {
+    return await this.tokenService.status(token);
+  }
+
   @Post('create')
   @HttpCode(201)
   @ApiOperation({ summary: 'トークン作成' })

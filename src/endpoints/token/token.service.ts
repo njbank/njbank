@@ -73,6 +73,20 @@ export class TokenService {
     return `${createTokenDto.name}を作成しました。`;
   }
 
+  async status(name: string) {
+    const token = await this.getToken(name);
+    if (!token) {
+      throw new ForbiddenException(`${token.name}は存在しません。`);
+    }
+    return `name:${token.name},owner:${
+      token.owner
+    },rate:${token.rate.toString()},checkingIp:${
+      token.checkingIp
+    },rankingType:${token.owner},operationType:${
+      token.operationType
+    },operator:${token.operator}`;
+  }
+
   async updateToken(
     updateTokenDto: UpdateTokenDto,
     name: string,

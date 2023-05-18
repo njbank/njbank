@@ -1,7 +1,12 @@
 import 'dotenv/config';
 
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Neos } from 'neos-client/dist';
+import { MessageType } from 'neos-client/dist/type/message';
+import { Repository } from 'typeorm';
+
+import { ExecutedMessage } from './entities/executed-message.entity';
 
 @Injectable()
 export class NeosService {
@@ -17,7 +22,10 @@ export class NeosService {
       overrideBaseUrl: 'https://apiproxy.neos.love/',
     },
   );
-  constructor() {
+  constructor(
+    @InjectRepository(ExecutedMessage)
+    private readonly executedMessageProvider: Repository<ExecutedMessage>,
+  ) {
     this.neos.login().then(() => {
       this.neos.getFriends().then((friends) => {
         for (const friend of friends) {
@@ -46,33 +54,47 @@ export class NeosService {
     await this.neos.addFriend({ targetUserId: `U-${id.substring(2)}` });
   }
   async KfcCheck(id: string, amount: number) {
-    const messages = await this.neos.getMessages({
+    const user = await this.neos.getUser({
       targetUserId: `U-${id.substring(2)}`,
-      unReadOnly: true,
     });
     const neosMessages = await this.neos.getMessages({
       targetUserId: `U-Neos`,
       unReadOnly: true,
     });
-    for (const message of messages) {
+    let message: MessageType;
+    for (const item of neosMessages) {
       if (
-        message.content['token'] === 'KFC' &&
-        message.content['amount'] === amount
+        item.content['comment'] &&
+        item.content['comment'].endsWith(`\nFrom ${user.username}`) &&
+        item.content['token'] === 'KFC' &&
+        item.content['amount'] === amount
       ) {
-        await this.neos.readMessage({ messageIds: [message.id] });
-        return true;
+        message = item;
+        break;
       }
     }
-    const user = await this.neos.getUser({
-      targetUserId: `U-${id.substring(2)}`,
-    });
-    for (const message of neosMessages) {
-      if (
-        message.content['comment'].endWith(`\nFrom ${user.username}`) &&
-        message.content['token'] === 'KFC' &&
-        message.content['amount'] === amount
-      ) {
+    if (!message) {
+      const messages = await this.neos.getMessages({
+        targetUserId: `U-${id.substring(2)}`,
+        unReadOnly: true,
+      });
+      for (const item of messages) {
+        if (
+          item.content['token'] === 'KFC' &&
+          item.content['amount'] === amount
+        ) {
+          message = item;
+          break;
+        }
+      }
+    }
+    if (message) {
+      const executedMessage = await this.executedMessageProvider.findOneBy({
+        msgId: message.id,
+      });
+      if (!executedMessage) {
         await this.neos.readMessage({ messageIds: [message.id] });
+        await this.executedMessageProvider.save({ msgId: message.id });
         return true;
       }
     }
