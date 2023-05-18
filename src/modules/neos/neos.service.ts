@@ -64,9 +64,10 @@ export class NeosService {
     let message: MessageType;
     for (const item of neosMessages) {
       if (
-        message.content['comment'].endsWith(`\nFrom ${user.username}`) &&
-        message.content['token'] === 'KFC' &&
-        message.content['amount'] === amount
+        item.content['comment'] &&
+        item.content['comment'].endsWith(`\nFrom ${user.username}`) &&
+        item.content['token'] === 'KFC' &&
+        item.content['amount'] === amount
       ) {
         message = item;
         break;
@@ -79,8 +80,8 @@ export class NeosService {
       });
       for (const item of messages) {
         if (
-          message.content['token'] === 'KFC' &&
-          message.content['amount'] === amount
+          item.content['token'] === 'KFC' &&
+          item.content['amount'] === amount
         ) {
           message = item;
           break;
