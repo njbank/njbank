@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Log {
@@ -30,6 +30,7 @@ export class Log {
   date: string;
   @Column()
   bankType: string;
+  @Index()
   @Column()
   bankId: string;
   @Column()
