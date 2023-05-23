@@ -60,6 +60,9 @@ export class KfcService {
     const id = transactionKfcDto.id;
     await this.usersService.checkIp(id, ipAddress);
     let user = await this.usersService.getUser(transactionKfcDto.id);
+    if (user.amount < transactionKfcDto.amount) {
+      throw new ForbiddenException('KFCが足りません');
+    }
     await this.neosService.sendKfc(
       id,
       transactionKfcDto.amount.toNumber(),
