@@ -25,27 +25,24 @@ export class AuthMiddleware implements NestMiddleware {
     if (!apikey) {
       throw new UnauthorizedException('Unauthorized');
     }
-    if (await this.validateApiKey(apikey, req)) {
-      next();
-    } else {
-      throw new UnauthorizedException('Unauthorized');
-    }
+    await this.validateApiKey(apikey, req);
+    next();
   }
 
   private apiKeys: string[] = ['x1jb520220hdvi71u7yv5bc0jf8wj634'];
 
   async validateApiKey(key: string, req: any) {
     if (this.apiKeys.find((e) => key === e)) {
-      return true;
+      return;
     }
     const apiKey = await this.getApiKey(key);
     if (!apiKey) {
-      return false;
+      throw new UnauthorizedException('Unauthorized');
     }
     for (const permissionId of apiKey.permissions) {
       const permission = await this.getPermission(permissionId);
       if (!permission) {
-        return false;
+        throw new UnauthorizedException('Permission Denied');
       }
       for (const allowedPaths of permission.allowedPaths) {
         let regString = allowedPaths;
@@ -62,7 +59,7 @@ export class AuthMiddleware implements NestMiddleware {
         for (const [index, item] of Object.entries(apiKey.paramsWhiteList)) {
           if (req.body[index]) {
             if (!item.includes(req.body[index])) {
-              return false;
+              throw new UnauthorizedException('Permission Denied');
             }
           }
         }
@@ -70,14 +67,10 @@ export class AuthMiddleware implements NestMiddleware {
         if (regExp.exec(req.baseUrl)) {
           const user = await this.usersService.getUser(apiKey.owner);
           if (
-            (apiKey.ipCheckExcludes.includes(req.headers['cf-connecting-ip']) &&
-              req.headers['cf-connecting-ip']) ||
-            (apiKey.ipCheckExcludes.includes(req.headers['CF-Connecting-IP']) &&
-              req.headers['CF-Connecting-IP']) ||
-            (user.ipAddress === req.headers['cf-connecting-ip'] &&
-              req.headers['cf-connecting-ip']) ||
-            (user.ipAddress === req.headers['CF-Connecting-IP'] &&
-              req.headers['CF-Connecting-IP']) ||
+            apiKey.ipCheckExcludes.includes(req.headers['cf-connecting-ip']) ||
+            apiKey.ipCheckExcludes.includes(req.headers['CF-Connecting-IP']) ||
+            user.ipAddress === req.headers['cf-connecting-ip'] ||
+            user.ipAddress === req.headers['CF-Connecting-IP'] ||
             apiKey.ipCheckExcludes.includes('*')
           ) {
             if (!req.baseUrl.startsWith('/users/entry-code')) {
@@ -85,11 +78,11 @@ export class AuthMiddleware implements NestMiddleware {
               req.headers['CF-Connecting-IP'] = '2001:db8::dead:beef';
             }
           }
-          return true;
+          return;
         }
       }
     }
-    return false;
+    throw new UnauthorizedException('Permission Denied');
   }
 
   async getApiKey(key: string) {
