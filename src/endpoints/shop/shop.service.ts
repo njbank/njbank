@@ -169,12 +169,20 @@ export class ShopService {
     if (users.length === 0) {
       return;
     }
+    let sendSum = new Big(0);
+    for (const item of users) {
+      sendSum = sendSum.add(item.amount);
+    }
     let shopBalance = shop.amount;
+    if (0 === sendSum.toNumber()) {
+      return;
+    }
+    const sendCo = new Big(1).div(sendSum);
     for (const item of users) {
       await this.removeKfc(shop, item.amount, `recordedSales ${item.user.id}`);
       await this.neosService.sendKfc(
         item.user.id,
-        item.amount.toNumber(),
+        item.amount.div(sendCo).toNumber(),
         `${shop.shopName} から ${item.amount} KFCの出金を行いました。`,
       );
       shopBalance = shopBalance.minus(item.amount);
