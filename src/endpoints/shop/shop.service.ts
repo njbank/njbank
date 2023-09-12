@@ -49,7 +49,7 @@ export class ShopService {
     shop = await this.addKfc(shop, amount, `payment from ${id}`);
     if (userAnnounce) {
       await this.neosService.sendMessage(
-        user.id,
+        user.userId,
         `${shop.shopName} に ${amount} KFC支払いました。\n残高 ${user.amount} KFC`,
       );
     }
@@ -79,7 +79,7 @@ export class ShopService {
     );
     if (userAnnounce) {
       await this.neosService.sendMessage(
-        user.id,
+        user.userId,
         `${shop.shopName} から ${amount} KFC送金されました。\n残高 ${user.amount} KFC`,
       );
     }
@@ -100,14 +100,14 @@ export class ShopService {
     userAnnounce = true,
   ) {
     const user = await this.usersService.getUser(id);
-    if (!(await this.neosService.KfcCheck(user.id, amount.toNumber()))) {
+    if (!(await this.neosService.KfcCheck(user.userId, amount.toNumber()))) {
       throw new ForbiddenException('入金に失敗しました。');
     }
     let shop = await this.getShop(shopName);
     shop = await this.addKfc(shop, amount, `deposit from ${id}`);
     if (userAnnounce) {
       await this.neosService.sendMessage(
-        user.id,
+        user.userId,
         `${shop.shopName} に ${amount} KFC入金しました。`,
       );
     }
@@ -134,7 +134,7 @@ export class ShopService {
     }
     if (userAnnounce) {
       await this.neosService.sendKfc(
-        user.id,
+        user.userId,
         amount.toNumber(),
         `${shop.shopName} から ${amount} KFCの出金を行いました。`,
       );
@@ -179,9 +179,13 @@ export class ShopService {
     }
     const sendCo = new Big(1).div(sendSum);
     for (const item of users) {
-      await this.removeKfc(shop, item.amount, `recordedSales ${item.user.id}`);
+      await this.removeKfc(
+        shop,
+        item.amount,
+        `recordedSales ${item.user.userId}`,
+      );
       await this.neosService.sendKfc(
-        item.user.id,
+        item.user.userId,
         item.amount.div(sendCo).toNumber(),
         `${shop.shopName} から ${item.amount} KFCの出金を行いました。`,
       );

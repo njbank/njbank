@@ -39,7 +39,7 @@ export class KfcService {
     let user = await this.usersService.getUser(transactionKfcDto.id);
     if (
       !(await this.neosService.KfcCheck(
-        user.id,
+        user.userId,
         transactionKfcDto.amount.toNumber(),
       ))
     ) {
@@ -79,7 +79,7 @@ export class KfcService {
     ipAddress: string,
   ): Promise<string> {
     let fromUser = await this.usersService.getUser(transferKfcDto.id);
-    await this.usersService.checkIp(fromUser.id, ipAddress);
+    await this.usersService.checkIp(fromUser.userId, ipAddress);
     if (fromUser.amount.toNumber() < transferKfcDto.amount.toNumber()) {
       throw new ForbiddenException(`お金が足りません。`);
     }
@@ -97,24 +97,24 @@ export class KfcService {
       toUser = await this.addKfc(
         toUser,
         transferKfcDto.amount,
-        `transfer from ${fromUser.id}`,
+        `transfer from ${fromUser.userId}`,
       );
       await this.neosService.sendMessage(
-        toUser.id,
+        toUser.userId,
         `ご利用ありがとうございます。\n${fromUser.userName} 様より口座へ ${transferKfcDto.amount} KFC振り込まれました。\n残高 ${toUser.amount} KFC`,
       );
     }
     fromUser = await this.removeKfc(
       fromUser,
       transferKfcDto.amount,
-      `transfer to ${fromUser.id}`,
+      `transfer to ${fromUser.userId}`,
     );
     const toUser = await this.usersService.getUser(
       transferKfcDto.to,
       !transferKfcDto.to.startsWith('U-'),
     );
     await this.neosService.sendMessage(
-      fromUser.id,
+      fromUser.userId,
       `ご利用ありがとうございます。\n${toUser.userName} 様へ ${transferKfcDto.amount} KFC振り込みました。\n残高 ${fromUser.amount} KFC`,
     );
     return `送金が完了しました。`;
@@ -122,12 +122,12 @@ export class KfcService {
 
   async addKfc(user: User, amount: Big, reason = '') {
     await this.userRepository
-      .update(user.id, { amount: user.amount.plus(amount).toString() })
+      .update(user.userId, { amount: user.amount.plus(amount).toString() })
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
     await this.loggingService.log(
-      new Log('user', user.id, 'kfc', amount.toString(), reason),
+      new Log('user', user.userId, 'kfc', amount.toString(), reason),
     );
     user.amount = user.amount.plus(amount);
     return user;
@@ -138,12 +138,12 @@ export class KfcService {
       throw new ForbiddenException('KFCが足りません');
     }
     await this.userRepository
-      .update(user.id, { amount: user.amount.minus(amount).toString() })
+      .update(user.userId, { amount: user.amount.minus(amount).toString() })
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
     await this.loggingService.log(
-      new Log('user', user.id, 'kfc', `-${amount.toString()}`, reason),
+      new Log('user', user.userId, 'kfc', `-${amount.toString()}`, reason),
     );
     user.amount = user.amount.minus(amount);
     return user;

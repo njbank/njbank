@@ -396,7 +396,7 @@ export class TokenService {
     } else {
       for (const item of boards) {
         const entry = await this.rankingEntriesRepository
-          .findOneBy([{ board: item.id, userId: user.id }])
+          .findOneBy([{ board: item.id, userId: user.userId }])
           .catch((e) => {
             throw new InternalServerErrorException(e.message);
           });
@@ -407,7 +407,7 @@ export class TokenService {
         } else {
           await this.rankingEntriesRepository
             .save({
-              userId: user.id,
+              userId: user.userId,
               board: item.id,
               amount: amount,
             })
@@ -430,7 +430,7 @@ export class TokenService {
     if (user.tokens[token.name]) {
       user.tokens[token.name] += amount;
       await this.userRepository
-        .update(user.id, {
+        .update(user.userId, {
           tokens: user.tokens,
         })
         .catch((e) => {
@@ -439,7 +439,7 @@ export class TokenService {
     } else {
       user.tokens[token.name] = amount;
       await this.userRepository
-        .update(user.id, {
+        .update(user.userId, {
           tokens: user.tokens,
         })
         .catch((e) => {
@@ -449,7 +449,7 @@ export class TokenService {
     await this.loggingService.log(
       new Log(
         'user',
-        user.id,
+        user.userId,
         `token:${token.name}`,
         `${amount.toString()}`,
         reason,
@@ -465,7 +465,7 @@ export class TokenService {
       }
       user.tokens[token.name] -= amount;
       await this.userRepository
-        .update(user.id, {
+        .update(user.userId, {
           tokens: user.tokens[token.name],
         })
         .catch((e) => {
@@ -477,7 +477,7 @@ export class TokenService {
     await this.loggingService.log(
       new Log(
         'user',
-        user.id,
+        user.userId,
         `token:${token.name}`,
         `${amount.toString()}`,
         reason,

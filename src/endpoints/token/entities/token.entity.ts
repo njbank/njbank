@@ -6,7 +6,7 @@ import { ColumnNumericTransformer } from '../../../transformer/column-numeric.tr
 import { OperationType } from './operation-type.entity';
 import { RankingType } from './ranking-type.entity';
 
-@Entity('Token')
+@Entity()
 export class Token {
   @PrimaryColumn()
   name: string;

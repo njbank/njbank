@@ -21,9 +21,11 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto, Ip: string) {
     const id = createUserDto.id;
-    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
+    const user = await this.userRepository
+      .findOneBy({ userId: id })
+      .catch((e) => {
+        throw new InternalServerErrorException(e.message);
+      });
     if (user) {
       if (user.userName == createUserDto.userName) {
         throw new ConflictException(`すでに口座があります。`);
@@ -39,7 +41,7 @@ export class UsersService {
     await this.neosService.friendRequest(id);
     await this.userRepository
       .save({
-        id: createUserDto.id,
+        userId: createUserDto.id,
         userName: createUserDto.userName,
         ipAddress: Ip,
       })
@@ -50,9 +52,11 @@ export class UsersService {
   }
 
   async fromId(id: string) {
-    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
+    const user = await this.userRepository
+      .findOneBy({ userId: id })
+      .catch((e) => {
+        throw new InternalServerErrorException(e.message);
+      });
 
     if (!user) {
       throw new ForbiddenException(`${id}は見つかりませんでした。`);
@@ -62,9 +66,11 @@ export class UsersService {
   }
 
   async resetIp(id: string) {
-    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
+    const user = await this.userRepository
+      .findOneBy({ userId: id })
+      .catch((e) => {
+        throw new InternalServerErrorException(e.message);
+      });
     if (!user) {
       throw new ForbiddenException(`${id}の口座はありません。`);
     }
@@ -84,9 +90,11 @@ export class UsersService {
     if (ip === '2001:db8::dead:beef') {
       throw new ForbiddenException('IPCheckパスが有効です。');
     }
-    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
+    const user = await this.userRepository
+      .findOneBy({ userId: id })
+      .catch((e) => {
+        throw new InternalServerErrorException(e.message);
+      });
     if (!user) {
       throw new ForbiddenException(`${id}の口座はありません。`);
     }
@@ -106,9 +114,11 @@ export class UsersService {
   }
 
   async listSkin(id: string) {
-    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
+    const user = await this.userRepository
+      .findOneBy({ userId: id })
+      .catch((e) => {
+        throw new InternalServerErrorException(e.message);
+      });
     if (!user) {
       throw new ForbiddenException(`${id}の口座はありません。`);
     }
@@ -118,9 +128,11 @@ export class UsersService {
   }
 
   async addSkin(id: string, skin: string) {
-    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
+    const user = await this.userRepository
+      .findOneBy({ userId: id })
+      .catch((e) => {
+        throw new InternalServerErrorException(e.message);
+      });
     if (!user) {
       throw new ForbiddenException(`${id}の口座はありません。`);
     }
@@ -130,7 +142,7 @@ export class UsersService {
     user.skin.push(skin);
     user.skin.sort();
     await this.userRepository
-      .update(user.id, { skin: user.skin })
+      .update(user.userId, { skin: user.skin })
       .catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
@@ -138,9 +150,11 @@ export class UsersService {
   }
 
   async delSkin(id: string, skin: string) {
-    const user = await this.userRepository.findOneBy({ id }).catch((e) => {
-      throw new InternalServerErrorException(e.message);
-    });
+    const user = await this.userRepository
+      .findOneBy({ userId: id })
+      .catch((e) => {
+        throw new InternalServerErrorException(e.message);
+      });
     if (!user) {
       throw new ForbiddenException(`${id}の口座はありません。`);
     }
@@ -149,7 +163,7 @@ export class UsersService {
     }
     user.skin.sort();
     await this.userRepository
-      .update(user.id, {
+      .update(user.userId, {
         skin: user.skin.filter((item) => {
           return item !== skin;
         }),
@@ -169,7 +183,7 @@ export class UsersService {
           throw new InternalServerErrorException(e.message);
         });
     } else {
-      user = await this.userRepository.findOneBy({ id }).catch((e) => {
+      user = await this.userRepository.findOneBy({ userId: id }).catch((e) => {
         throw new InternalServerErrorException(e.message);
       });
     }

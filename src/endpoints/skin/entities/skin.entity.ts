@@ -1,6 +1,6 @@
 import { Column, Entity, Index, PrimaryColumn } from 'typeorm';
 
-@Entity('skin')
+@Entity()
 export class Skin {
   @PrimaryColumn()
   @Index()

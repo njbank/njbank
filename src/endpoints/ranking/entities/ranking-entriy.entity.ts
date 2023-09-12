@@ -19,6 +19,6 @@ export class RankingEntry {
   board: number;
   @Column()
   amount: number;
-  @ManyToOne(() => User, (user) => user.id, { eager: true })
+  @ManyToOne(() => User, (user) => user.userId, { eager: true })
   user: User;
 }

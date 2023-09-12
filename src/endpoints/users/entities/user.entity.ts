@@ -1,14 +1,23 @@
 import Big from 'big.js';
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 import { ColumnNumericTransformer } from '../../../transformer/column-numeric.transformer';
 
 import { Role } from './role.entity';
 
-@Entity('User')
+@Entity()
 export class User {
+  @PrimaryGeneratedColumn()
+  id: number;
   @PrimaryColumn()
-  id: string;
+  @Index()
+  userId: string;
   @Column()
   userName: string;
   @Column({ default: 'Guest' })

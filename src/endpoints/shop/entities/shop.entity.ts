@@ -3,7 +3,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 import { ColumnNumericTransformer } from '../../../transformer/column-numeric.transformer';
 
-@Entity('shop')
+@Entity()
 export class Shop {
   @PrimaryGeneratedColumn()
   id: number;
